@@ -1,0 +1,461 @@
+---
+title: "Introduction to crossfit"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{crossfit-intro}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>"
+)
+```
+
+library(crossfit) set.seed(1)
+
+# 1. Motivation: why another cross-fitting engine?
+
+Many modern estimators — **double / debiased ML**, meta-learners, etc. —
+share the same pattern:
+
+-   We care about a **low-dimensional target**\
+    (ATE, regression risk, a parameter, …)
+-   This target depends on one or several **high-dimensional nuisance
+    functions**\
+    $m(x) = E[Y \mid X]$, propensity scores, conditional means, …
+
+If we:
+
+1.  fit the nuisances and
+2.  evaluate the target
+
+on the **same observations**, we usually:
+
+-   overfit the nuisances,
+-   and introduce bias in the target that doesn’t vanish nicely.
+
+**Cross-fitting** fixes this by:
+
+1.  splitting the data into $K$ folds,
+2.  fitting nuisance models on **training folds**,
+3.  evaluating the target on **held-out folds** where the nuisances were
+    *not* trained.
+
+The `crossfit` package generalizes this logic to:
+
+-   an arbitrary **DAG of nuisances**,
+-   multiple methods in parallel,
+-   flexible fold geometry (per-node `train_fold`, per-target
+    `eval_fold`),
+-   two modes: `"estimate"` (numeric target) and `"predict"`
+    (cross-fitted predictor).
+
+# 2. Basic concepts
+
+## 2.1 Nuisances
+
+A **nuisance** is defined via `create_nuisance()`:
+
+-   `fit(data, ...)` → trains a model on (a subset of) the data,
+-   `predict(model, data, ...)` → returns predictions on (a subset of)
+    the data,
+-   `train_fold` → how many folds the nuisance trains on,
+-   optional `fit_deps`, `pred_deps` → which other nuisances it depends
+    on.
+
+Example: regression $m(x) = E[Y \mid X]$:
+
+``` r
+nuis_y <- create_nuisance(
+  fit = function(data, ...) lm(y ~ x, data = data),
+  predict = function(model, data, ...) {
+    as.numeric(predict(model, newdata = data))
+  },
+  train_fold = 2L  # this nuisance will train on 2 consecutive folds
+)
+```
+
+## 2.2 Target
+
+The **target** is just a function of:
+
+-   `data`,
+-   and some nuisance outputs (passed as arguments).
+
+Example: cross-fitted mean squared error (MSE) of $m(x)$:
+
+target_mse \<- function(data, nuis_y, ...) { mean((data\$y - nuis_y)\^2)
+}
+
+During cross-fitting, the engine will:
+
+-   call `nuis_y`’s `predict()` on held-out folds,
+-   then call
+    `target_mse(data_eval, nuis_y = predicted_values_on_eval)`.
+
+You don’t have to manage folds manually in the target.
+
+## 2.3 Methods
+
+A **method** bundles:
+
+-   a `target`,
+-   a list of nuisances,
+-   cross-fitting configuration:
+
+mse_method \<- create_method( target = target_mse, list_nuisance =
+list(nuis_y = nuis_y), folds = 4, \# total number of folds K repeats =
+3, \# how many times to re-draw fold splits eval_fold = 1L, \#
+evaluation window width (in folds) mode = "estimate", fold_allocation =
+"independence", aggregate_panels = mean_estimate, aggregate_repeats =
+mean_estimate )
+
+Conceptually:
+
+-   `folds` and `repeats` define **K-fold cross-fitting repeated R
+    times**,
+-   `eval_fold` tells how many folds to reserve for evaluating the
+    target,
+-   `mode` controls whether we return a **numeric estimate**
+    (`"estimate"`) or a **prediction function** (`"predict"`),
+-   `fold_allocation` controls how training windows are laid out across
+    folds,
+-   `aggregate_panels` combines panel-wise results (within one
+    repetition),
+-   `aggregate_repeats` combines repetition-wise results.
+
+# 3. A simple regression example
+
+Let’s walk through a full workflow on a toy regression problem.
+
+``` r
+n <- 200
+x <- rnorm(n)
+y <- x + rnorm(n)
+data <- data.frame(x = x, y = y)
+```
+
+We reuse the nuisance and target defined above (`nuis_y`, `target_mse`),
+and the method `mse_method`.
+
+## 3.1 Single-method cross-fitting with `crossfit()`
+
+res \<- crossfit(data, mse_method)
+
+str(res$estimates)
+res$estimates[[1]]
+
+The result is a list with elements:
+
+-   `estimates` – one entry per method (here only one),
+-   `per_method` – panel-wise and repetition-wise values and errors,
+-   `repeats_done` – how many repetitions successfully ran,
+-   `K`, `K_required`, `methods`, `plan` – extra diagnostics.
+
+We can inspect the per-repetition values:
+
+res$per_method$method\$values
+
+Each element in `values` is the aggregated MSE over panels for that
+repetition.
+
+# 4. Multiple methods and shared nuisances
+
+Very often, you want to compare several targets or configurations that
+share the **same nuisance models**. `crossfit_multi()` is built for
+that.
+
+Here we estimate simultaneously:
+
+-   the cross-fitted MSE of $m(x)$,
+-   the cross-fitted mean of $m(x)$.
+
+``` r
+target_mean <- function(data, nuis_y, ...) {
+  mean(nuis_y)
+}
+
+m_mse <- create_method(
+  target        = target_mse,
+  list_nuisance = list(nuis_y = nuis_y),
+  folds         = 4,
+  repeats       = 3,
+  eval_fold     = 1L,
+  mode          = "estimate",
+  fold_allocation   = "independence",
+  aggregate_panels  = mean_estimate,
+  aggregate_repeats = mean_estimate
+)
+
+m_mean <- create_method(
+  target        = target_mean,
+  list_nuisance = list(nuis_y = nuis_y),
+  folds         = 4,
+  repeats       = 3,
+  eval_fold     = 1L,
+  mode          = "estimate",
+  fold_allocation   = "overlap",
+  aggregate_panels  = mean_estimate,
+  aggregate_repeats = mean_estimate
+)
+
+cf_multi <- crossfit_multi(
+  data    = data,
+  methods = list(mse = m_mse, mean = m_mean),
+  aggregate_panels  = mean_estimate,
+  aggregate_repeats = mean_estimate
+)
+
+cf_multi$estimates
+```
+
+The two methods share fitted nuisances whenever their **structure** and
+**training folds** coincide (internally via structural signatures and
+caching), which can significantly reduce computation when you have many
+methods.
+
+# 5. Predict mode: build a cross-fitted ensemble predictor
+
+In `"predict"` mode, the engine returns a **prediction function**
+instead of a numeric estimate. This is useful when you want:
+
+-   a cross-fitted regression / classifier you can re-use on new data,
+-   possibly built from an **ensemble** of several nuisance models.
+
+Here we build a cross-fitted **ensemble predictor** that averages a
+linear and a quadratic regression for $E[Y \mid X]$.
+
+We simulate a slightly nonlinear regression problem:
+
+``` r
+n2 <- 300
+x2 <- runif(n2, -2, 2)
+y2 <- sin(x2) + rnorm(n2, sd = 0.3)
+data2 <- data.frame(x = x2, y = y2)
+```
+
+Two nuisances:
+
+-   `nuis_lin`: linear regression,
+-   `nuis_quad`: quadratic regression via `poly(x, 2)`.
+
+``` r
+nuis_lin <- create_nuisance(
+  fit = function(data, ...) lm(y ~ x, data = data),
+  predict = function(model, data, ...) {
+    as.numeric(predict(model, newdata = data))
+  },
+  train_fold = 2L
+)
+
+nuis_quad <- create_nuisance(
+  fit = function(data, ...) lm(y ~ poly(x, 2), data = data),
+  predict = function(model, data, ...) {
+    as.numeric(predict(model, newdata = data))
+  },
+  train_fold = 2L
+)
+```
+
+Now define a **target in predict mode** that combines the two nuisance
+predictions into an ensemble prediction:
+
+``` r
+target_ensemble <- function(data, m_lin, m_quad, ...) {
+  0.5 * m_lin + 0.5 * m_quad
+}
+```
+
+We build a method in `"predict"` mode:
+
+-   `eval_fold = 0L` (no dedicated evaluation window),
+-   target depends on `m_lin` and `m_quad`,
+-   results will be aggregated into a single prediction function.
+
+``` r
+m_ens <- create_method(
+  target        = target_ensemble,
+  list_nuisance = list(
+    m_lin  = nuis_lin,
+    m_quad = nuis_quad
+  ),
+  folds         = 4,
+  repeats       = 3,
+  eval_fold     = 0L,            # no eval window in predict mode
+  mode          = "predict",
+  fold_allocation   = "independence"
+)
+```
+
+Run cross-fitting in predict mode, using `mean_predictor()` to aggregate
+panel-level and repetition-level predictors:
+
+res_pred \<- crossfit_multi( data = data2, methods = list(ensemble =
+m_ens), aggregate_panels = mean_predictor, aggregate_repeats =
+mean_predictor )
+
+# estimates$ensemble is now a prediction function
+f_hat <- res_pred$estimates\$ensemble
+
+newdata \<- data.frame(x = seq(-2, 2, length.out = 7)) cbind(x =
+newdata\$x, y_hat = f_hat(newdata))
+
+Here:
+
+-   Each repetition builds cross-fitted predictors for `m_lin`, `m_quad`
+    and the ensemble `target_ensemble`.
+-   `mean_predictor()` aggregates predictors over panels and
+    repetitions.
+-   `f_hat(newdata)` gives cross-fitted ensemble predictions on new
+    data.
+
+This is the typical pattern in `"predict"` mode: your `target` combines
+one or several nuisance predictors into a **derived predictor**
+(pseudo-outcome, CATE, ensemble, …), and the engine returns a
+cross-fitted version of that predictor.
+
+# 6. Fold allocation strategies
+
+The `fold_allocation` argument controls how training blocks are placed
+relative to the evaluation window.
+
+For each method:
+
+-   `eval_fold` folds are reserved for evaluating the target,
+-   each nuisance has a `train_fold` width,
+-   `fold_allocation` decides how the training blocks for nuisances
+    occupy the K folds.
+
+The engine supports three strategies:
+
+-   `"independence"`
+    -   Each *instance* (possibly duplicated by context) gets its own
+        **disjoint** training window after the eval window.\
+    -   Strongest notion of out-of-sample independence for all nodes.
+-   `"overlap"`
+    -   All non-target nuisances **share** the same training window
+        starting after the eval window.\
+    -   Training data for different nuisances may overlap, but they
+        still avoid eval folds in `"estimate"` mode.
+-   `"disjoint"`
+    -   Unique nuisances (by name) get one disjoint training window each
+        after the eval window, without duplicating instances by
+        context.\
+    -   Intermediate between `independence` and `overlap`.
+
+You choose the strategy per method:
+
+``` r
+mse_overlap <- create_method(
+  target        = target_mse,
+  list_nuisance = list(nuis_y = nuis_y),
+  folds         = 4,
+  repeats       = 3,
+  eval_fold     = 1L,
+  mode          = "estimate",
+  fold_allocation   = "overlap",
+  aggregate_panels  = mean_estimate,
+  aggregate_repeats = mean_estimate
+)
+```
+
+# 7. Customization
+
+## 7.1 Custom fold splitting
+
+By default, fold assignments are:
+
+``` r
+fold_split = function(data, K) sample(rep_len(1:K, nrow(data)))
+```
+
+You can override this in `crossfit()` or `crossfit_multi()` if you need:
+
+-   stratification,
+-   time-series blocks,
+-   grouped folds, etc.
+
+Example: simple grouped folds by an integer `id`:
+
+``` r
+# toy group variable
+group_id <- sample(1:10, size = nrow(data), replace = TRUE)
+
+fold_split_grouped <- function(data, K) {
+  # assign folds at group level, then expand to rows
+  groups <- unique(group_id)
+  gfolds <- sample(rep_len(1:K, length(groups)))
+  g2f    <- setNames(gfolds, groups)
+  g2f[group_id]
+}
+
+res_grouped <- crossfit(
+  data = data,
+  method = mse_method,
+  fold_split = fold_split_grouped
+)
+
+res_grouped$estimates[[1]]
+```
+
+The only requirement is that `fold_split(data, K)` returns a vector of
+length `nrow(data)` with integer labels in `{1, …, K}`, and that all
+folds are non-empty.
+
+## 7.2 Aggregation functions
+
+You can plug in any aggregation you like:
+
+-   for numeric estimates: trimmed means, medians, robust summaries,
+-   for predictors: custom ensembles, stacking, etc.
+
+For example, a simple **trimmed mean** over panels:
+
+``` r
+trimmed_mean_estimate <- function(xs, trim = 0.1) {
+  x <- unlist(xs)
+  mean(x, trim = trim)
+}
+
+m_trim <- create_method(
+  target        = target_mse,
+  list_nuisance = list(nuis_y = nuis_y),
+  folds         = 4,
+  repeats       = 5,
+  eval_fold     = 1L,
+  mode          = "estimate",
+  fold_allocation   = "independence",
+  aggregate_panels  = trimmed_mean_estimate,
+  aggregate_repeats = trimmed_mean_estimate
+)
+
+res_trim <- crossfit(data, m_trim)
+res_trim$estimates[[1]]
+```
+
+# 8. Where to go next
+
+-   Use `?crossfit`, `?crossfit_multi`, `?create_method`,
+    `?create_nuisance` for detailed argument reference.
+
+-   Explore the `per_method` and `plan` components in the result if you
+    need to:
+
+    -   debug dependency graphs,
+    -   inspect allocated folds,
+    -   or introspect which nuisances are used where.
+
+`crossfit` is meant to be a small, flexible engine: you define the
+nuisances and targets; it takes care of the cross-fitting schedule,
+reuse of models, and basic safety checks (cycles, coverage of
+dependencies, fold geometry).
+
+If you encounter edge cases or have ideas for higher-level helpers
+(e.g., ready-made DML ATE wrappers), they can be built conveniently on
+top of this core.

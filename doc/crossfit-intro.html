@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Introduction to crossfit</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Introduction to crossfit</h1>
+
+
+
+<p>library(crossfit) set.seed(1)</p>
+<div id="motivation-why-another-cross-fitting-engine" class="section level1">
+<h1>1. Motivation: why another cross-fitting engine?</h1>
+<p>Many modern estimators — <strong>double / debiased ML</strong>,
+meta-learners, etc. — share the same pattern:</p>
+<ul>
+<li>We care about a <strong>low-dimensional target</strong><br />
+(ATE, regression risk, a parameter, …)</li>
+<li>This target depends on one or several <strong>high-dimensional
+nuisance functions</strong><br />
+<span class="math inline">\(m(x) = E[Y \mid X]\)</span>, propensity
+scores, conditional means, …</li>
+</ul>
+<p>If we:</p>
+<ol style="list-style-type: decimal">
+<li>fit the nuisances and</li>
+<li>evaluate the target</li>
+</ol>
+<p>on the <strong>same observations</strong>, we usually:</p>
+<ul>
+<li>overfit the nuisances,</li>
+<li>and introduce bias in the target that doesn’t vanish nicely.</li>
+</ul>
+<p><strong>Cross-fitting</strong> fixes this by:</p>
+<ol style="list-style-type: decimal">
+<li>splitting the data into <span class="math inline">\(K\)</span>
+folds,</li>
+<li>fitting nuisance models on <strong>training folds</strong>,</li>
+<li>evaluating the target on <strong>held-out folds</strong> where the
+nuisances were <em>not</em> trained.</li>
+</ol>
+<p>The <code>crossfit</code> package generalizes this logic to:</p>
+<ul>
+<li>an arbitrary <strong>DAG of nuisances</strong>,</li>
+<li>multiple methods in parallel,</li>
+<li>flexible fold geometry (per-node <code>train_fold</code>, per-target
+<code>eval_fold</code>),</li>
+<li>two modes: <code>&quot;estimate&quot;</code> (numeric target) and
+<code>&quot;predict&quot;</code> (cross-fitted predictor).</li>
+</ul>
+</div>
+<div id="basic-concepts" class="section level1">
+<h1>2. Basic concepts</h1>
+<div id="nuisances" class="section level2">
+<h2>2.1 Nuisances</h2>
+<p>A <strong>nuisance</strong> is defined via
+<code>create_nuisance()</code>:</p>
+<ul>
+<li><code>fit(data, ...)</code> → trains a model on (a subset of) the
+data,</li>
+<li><code>predict(model, data, ...)</code> → returns predictions on (a
+subset of) the data,</li>
+<li><code>train_fold</code> → how many folds the nuisance trains
+on,</li>
+<li>optional <code>fit_deps</code>, <code>pred_deps</code> → which other
+nuisances it depends on.</li>
+</ul>
+<p>Example: regression <span class="math inline">\(m(x) = E[Y \mid
+X]\)</span>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>nuis_y <span class="ot">&lt;-</span> <span class="fu">create_nuisance</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="at">fit =</span> <span class="cf">function</span>(data, ...) <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> data),</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="at">predict =</span> <span class="cf">function</span>(model, data, ...) {</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    <span class="fu">as.numeric</span>(<span class="fu">predict</span>(model, <span class="at">newdata =</span> data))</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  },</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">train_fold =</span> <span class="dv">2</span><span class="dt">L</span>  <span class="co"># this nuisance will train on 2 consecutive folds</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="target" class="section level2">
+<h2>2.2 Target</h2>
+<p>The <strong>target</strong> is just a function of:</p>
+<ul>
+<li><code>data</code>,</li>
+<li>and some nuisance outputs (passed as arguments).</li>
+</ul>
+<p>Example: cross-fitted mean squared error (MSE) of <span class="math inline">\(m(x)\)</span>:</p>
+<p>target_mse &lt;- function(data, nuis_y, …) { mean((data$y -
+nuis_y)^2) }</p>
+<p>During cross-fitting, the engine will:</p>
+<ul>
+<li>call <code>nuis_y</code>’s <code>predict()</code> on held-out
+folds,</li>
+<li>then call
+<code>target_mse(data_eval, nuis_y = predicted_values_on_eval)</code>.</li>
+</ul>
+<p>You don’t have to manage folds manually in the target.</p>
+</div>
+<div id="methods" class="section level2">
+<h2>2.3 Methods</h2>
+<p>A <strong>method</strong> bundles:</p>
+<ul>
+<li>a <code>target</code>,</li>
+<li>a list of nuisances,</li>
+<li>cross-fitting configuration:</li>
+</ul>
+<p>mse_method &lt;- create_method( target = target_mse, list_nuisance =
+list(nuis_y = nuis_y), folds = 4, # total number of folds K repeats = 3,
+# how many times to re-draw fold splits eval_fold = 1L, # evaluation
+window width (in folds) mode = “estimate”, fold_allocation =
+“independence”, aggregate_panels = mean_estimate, aggregate_repeats =
+mean_estimate )</p>
+<p>Conceptually:</p>
+<ul>
+<li><code>folds</code> and <code>repeats</code> define <strong>K-fold
+cross-fitting repeated R times</strong>,</li>
+<li><code>eval_fold</code> tells how many folds to reserve for
+evaluating the target,</li>
+<li><code>mode</code> controls whether we return a <strong>numeric
+estimate</strong> (<code>&quot;estimate&quot;</code>) or a <strong>prediction
+function</strong> (<code>&quot;predict&quot;</code>),</li>
+<li><code>fold_allocation</code> controls how training windows are laid
+out across folds,</li>
+<li><code>aggregate_panels</code> combines panel-wise results (within
+one repetition),</li>
+<li><code>aggregate_repeats</code> combines repetition-wise
+results.</li>
+</ul>
+</div>
+</div>
+<div id="a-simple-regression-example" class="section level1">
+<h1>3. A simple regression example</h1>
+<p>Let’s walk through a full workflow on a toy regression problem.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>y <span class="ot">&lt;-</span> x <span class="sc">+</span> <span class="fu">rnorm</span>(n)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x, <span class="at">y =</span> y)</span></code></pre></div>
+<p>We reuse the nuisance and target defined above (<code>nuis_y</code>,
+<code>target_mse</code>), and the method <code>mse_method</code>.</p>
+<div id="single-method-cross-fitting-with-crossfit" class="section level2">
+<h2>3.1 Single-method cross-fitting with <code>crossfit()</code></h2>
+<p>res &lt;- crossfit(data, mse_method)</p>
+<p>str(res<span class="math inline">\(estimates)
+res\)</span>estimates[[1]]</p>
+<p>The result is a list with elements:</p>
+<ul>
+<li><code>estimates</code> – one entry per method (here only one),</li>
+<li><code>per_method</code> – panel-wise and repetition-wise values and
+errors,</li>
+<li><code>repeats_done</code> – how many repetitions successfully
+ran,</li>
+<li><code>K</code>, <code>K_required</code>, <code>methods</code>,
+<code>plan</code> – extra diagnostics.</li>
+</ul>
+<p>We can inspect the per-repetition values:</p>
+<p>res<span class="math inline">\(per_method\)</span>method$values</p>
+<p>Each element in <code>values</code> is the aggregated MSE over panels
+for that repetition.</p>
+</div>
+</div>
+<div id="multiple-methods-and-shared-nuisances" class="section level1">
+<h1>4. Multiple methods and shared nuisances</h1>
+<p>Very often, you want to compare several targets or configurations
+that share the <strong>same nuisance models</strong>.
+<code>crossfit_multi()</code> is built for that.</p>
+<p>Here we estimate simultaneously:</p>
+<ul>
+<li>the cross-fitted MSE of <span class="math inline">\(m(x)\)</span>,</li>
+<li>the cross-fitted mean of <span class="math inline">\(m(x)\)</span>.</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>target_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(data, nuis_y, ...) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">mean</span>(nuis_y)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>}</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>m_mse <span class="ot">&lt;-</span> <span class="fu">create_method</span>(</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">target        =</span> target_mse,</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">list_nuisance =</span> <span class="fu">list</span>(<span class="at">nuis_y =</span> nuis_y),</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">folds         =</span> <span class="dv">4</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="at">repeats       =</span> <span class="dv">3</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="at">eval_fold     =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="at">mode          =</span> <span class="st">&quot;estimate&quot;</span>,</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>  <span class="at">fold_allocation   =</span> <span class="st">&quot;independence&quot;</span>,</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  <span class="at">aggregate_panels  =</span> mean_estimate,</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>  <span class="at">aggregate_repeats =</span> mean_estimate</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>m_mean <span class="ot">&lt;-</span> <span class="fu">create_method</span>(</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>  <span class="at">target        =</span> target_mean,</span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>  <span class="at">list_nuisance =</span> <span class="fu">list</span>(<span class="at">nuis_y =</span> nuis_y),</span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>  <span class="at">folds         =</span> <span class="dv">4</span>,</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>  <span class="at">repeats       =</span> <span class="dv">3</span>,</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>  <span class="at">eval_fold     =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>  <span class="at">mode          =</span> <span class="st">&quot;estimate&quot;</span>,</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>  <span class="at">fold_allocation   =</span> <span class="st">&quot;overlap&quot;</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>  <span class="at">aggregate_panels  =</span> mean_estimate,</span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>  <span class="at">aggregate_repeats =</span> mean_estimate</span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>)</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>cf_multi <span class="ot">&lt;-</span> <span class="fu">crossfit_multi</span>(</span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>  <span class="at">data    =</span> data,</span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>  <span class="at">methods =</span> <span class="fu">list</span>(<span class="at">mse =</span> m_mse, <span class="at">mean =</span> m_mean),</span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>  <span class="at">aggregate_panels  =</span> mean_estimate,</span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>  <span class="at">aggregate_repeats =</span> mean_estimate</span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>)</span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>cf_multi<span class="sc">$</span>estimates</span></code></pre></div>
+<p>The two methods share fitted nuisances whenever their
+<strong>structure</strong> and <strong>training folds</strong> coincide
+(internally via structural signatures and caching), which can
+significantly reduce computation when you have many methods.</p>
+</div>
+<div id="predict-mode-build-a-cross-fitted-ensemble-predictor" class="section level1">
+<h1>5. Predict mode: build a cross-fitted ensemble predictor</h1>
+<p>In <code>&quot;predict&quot;</code> mode, the engine returns a
+<strong>prediction function</strong> instead of a numeric estimate. This
+is useful when you want:</p>
+<ul>
+<li>a cross-fitted regression / classifier you can re-use on new
+data,</li>
+<li>possibly built from an <strong>ensemble</strong> of several nuisance
+models.</li>
+</ul>
+<p>Here we build a cross-fitted <strong>ensemble predictor</strong> that
+averages a linear and a quadratic regression for <span class="math inline">\(E[Y \mid X]\)</span>.</p>
+<p>We simulate a slightly nonlinear regression problem:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>n2 <span class="ot">&lt;-</span> <span class="dv">300</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">runif</span>(n2, <span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>y2 <span class="ot">&lt;-</span> <span class="fu">sin</span>(x2) <span class="sc">+</span> <span class="fu">rnorm</span>(n2, <span class="at">sd =</span> <span class="fl">0.3</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>data2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> x2, <span class="at">y =</span> y2)</span></code></pre></div>
+<p>Two nuisances:</p>
+<ul>
+<li><code>nuis_lin</code>: linear regression,</li>
+<li><code>nuis_quad</code>: quadratic regression via
+<code>poly(x, 2)</code>.</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>nuis_lin <span class="ot">&lt;-</span> <span class="fu">create_nuisance</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">fit =</span> <span class="cf">function</span>(data, ...) <span class="fu">lm</span>(y <span class="sc">~</span> x, <span class="at">data =</span> data),</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">predict =</span> <span class="cf">function</span>(model, data, ...) {</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>    <span class="fu">as.numeric</span>(<span class="fu">predict</span>(model, <span class="at">newdata =</span> data))</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  },</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">train_fold =</span> <span class="dv">2</span><span class="dt">L</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>nuis_quad <span class="ot">&lt;-</span> <span class="fu">create_nuisance</span>(</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>  <span class="at">fit =</span> <span class="cf">function</span>(data, ...) <span class="fu">lm</span>(y <span class="sc">~</span> <span class="fu">poly</span>(x, <span class="dv">2</span>), <span class="at">data =</span> data),</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="at">predict =</span> <span class="cf">function</span>(model, data, ...) {</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>    <span class="fu">as.numeric</span>(<span class="fu">predict</span>(model, <span class="at">newdata =</span> data))</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  },</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  <span class="at">train_fold =</span> <span class="dv">2</span><span class="dt">L</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>)</span></code></pre></div>
+<p>Now define a <strong>target in predict mode</strong> that combines
+the two nuisance predictions into an ensemble prediction:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>target_ensemble <span class="ot">&lt;-</span> <span class="cf">function</span>(data, m_lin, m_quad, ...) {</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fl">0.5</span> <span class="sc">*</span> m_lin <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> m_quad</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>}</span></code></pre></div>
+<p>We build a method in <code>&quot;predict&quot;</code> mode:</p>
+<ul>
+<li><code>eval_fold = 0L</code> (no dedicated evaluation window),</li>
+<li>target depends on <code>m_lin</code> and <code>m_quad</code>,</li>
+<li>results will be aggregated into a single prediction function.</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>m_ens <span class="ot">&lt;-</span> <span class="fu">create_method</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">target        =</span> target_ensemble,</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">list_nuisance =</span> <span class="fu">list</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>    <span class="at">m_lin  =</span> nuis_lin,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    <span class="at">m_quad =</span> nuis_quad</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  ),</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">folds         =</span> <span class="dv">4</span>,</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="at">repeats       =</span> <span class="dv">3</span>,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="at">eval_fold     =</span> <span class="dv">0</span><span class="dt">L</span>,            <span class="co"># no eval window in predict mode</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="at">mode          =</span> <span class="st">&quot;predict&quot;</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="at">fold_allocation   =</span> <span class="st">&quot;independence&quot;</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>)</span></code></pre></div>
+<p>Run cross-fitting in predict mode, using
+<code>mean_predictor()</code> to aggregate panel-level and
+repetition-level predictors:</p>
+<p>res_pred &lt;- crossfit_multi( data = data2, methods = list(ensemble
+= m_ens), aggregate_panels = mean_predictor, aggregate_repeats =
+mean_predictor )</p>
+</div>
+<div id="estimatesensemble-is-now-a-prediction-function-f_hat---res_predestimatesensemble" class="section level1">
+<h1>estimates<span class="math inline">\(ensemble is now a prediction
+function
+f_hat &lt;- res_pred\)</span>estimates$ensemble</h1>
+<p>newdata &lt;- data.frame(x = seq(-2, 2, length.out = 7)) cbind(x =
+newdata$x, y_hat = f_hat(newdata))</p>
+<p>Here:</p>
+<ul>
+<li>Each repetition builds cross-fitted predictors for
+<code>m_lin</code>, <code>m_quad</code> and the ensemble
+<code>target_ensemble</code>.</li>
+<li><code>mean_predictor()</code> aggregates predictors over panels and
+repetitions.</li>
+<li><code>f_hat(newdata)</code> gives cross-fitted ensemble predictions
+on new data.</li>
+</ul>
+<p>This is the typical pattern in <code>&quot;predict&quot;</code> mode: your
+<code>target</code> combines one or several nuisance predictors into a
+<strong>derived predictor</strong> (pseudo-outcome, CATE, ensemble, …),
+and the engine returns a cross-fitted version of that predictor.</p>
+</div>
+<div id="fold-allocation-strategies" class="section level1">
+<h1>6. Fold allocation strategies</h1>
+<p>The <code>fold_allocation</code> argument controls how training
+blocks are placed relative to the evaluation window.</p>
+<p>For each method:</p>
+<ul>
+<li><code>eval_fold</code> folds are reserved for evaluating the
+target,</li>
+<li>each nuisance has a <code>train_fold</code> width,</li>
+<li><code>fold_allocation</code> decides how the training blocks for
+nuisances occupy the K folds.</li>
+</ul>
+<p>The engine supports three strategies:</p>
+<ul>
+<li><code>&quot;independence&quot;</code>
+<ul>
+<li>Each <em>instance</em> (possibly duplicated by context) gets its own
+<strong>disjoint</strong> training window after the eval window.<br />
+</li>
+<li>Strongest notion of out-of-sample independence for all nodes.</li>
+</ul></li>
+<li><code>&quot;overlap&quot;</code>
+<ul>
+<li>All non-target nuisances <strong>share</strong> the same training
+window starting after the eval window.<br />
+</li>
+<li>Training data for different nuisances may overlap, but they still
+avoid eval folds in <code>&quot;estimate&quot;</code> mode.</li>
+</ul></li>
+<li><code>&quot;disjoint&quot;</code>
+<ul>
+<li>Unique nuisances (by name) get one disjoint training window each
+after the eval window, without duplicating instances by context.<br />
+</li>
+<li>Intermediate between <code>independence</code> and
+<code>overlap</code>.</li>
+</ul></li>
+</ul>
+<p>You choose the strategy per method:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>mse_overlap <span class="ot">&lt;-</span> <span class="fu">create_method</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">target        =</span> target_mse,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">list_nuisance =</span> <span class="fu">list</span>(<span class="at">nuis_y =</span> nuis_y),</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">folds         =</span> <span class="dv">4</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">repeats       =</span> <span class="dv">3</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">eval_fold     =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="at">mode          =</span> <span class="st">&quot;estimate&quot;</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="at">fold_allocation   =</span> <span class="st">&quot;overlap&quot;</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>  <span class="at">aggregate_panels  =</span> mean_estimate,</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  <span class="at">aggregate_repeats =</span> mean_estimate</span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="customization" class="section level1">
+<h1>7. Customization</h1>
+<div id="custom-fold-splitting" class="section level2">
+<h2>7.1 Custom fold splitting</h2>
+<p>By default, fold assignments are:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>fold_split <span class="ot">=</span> <span class="cf">function</span>(data, K) <span class="fu">sample</span>(<span class="fu">rep_len</span>(<span class="dv">1</span><span class="sc">:</span>K, <span class="fu">nrow</span>(data)))</span></code></pre></div>
+<p>You can override this in <code>crossfit()</code> or
+<code>crossfit_multi()</code> if you need:</p>
+<ul>
+<li>stratification,</li>
+<li>time-series blocks,</li>
+<li>grouped folds, etc.</li>
+</ul>
+<p>Example: simple grouped folds by an integer <code>id</code>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># toy group variable</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>group_id <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>, <span class="at">size =</span> <span class="fu">nrow</span>(data), <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>fold_split_grouped <span class="ot">&lt;-</span> <span class="cf">function</span>(data, K) {</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="co"># assign folds at group level, then expand to rows</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  groups <span class="ot">&lt;-</span> <span class="fu">unique</span>(group_id)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  gfolds <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">rep_len</span>(<span class="dv">1</span><span class="sc">:</span>K, <span class="fu">length</span>(groups)))</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  g2f    <span class="ot">&lt;-</span> <span class="fu">setNames</span>(gfolds, groups)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  g2f[group_id]</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>}</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>res_grouped <span class="ot">&lt;-</span> <span class="fu">crossfit</span>(</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="at">data =</span> data,</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>  <span class="at">method =</span> mse_method,</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>  <span class="at">fold_split =</span> fold_split_grouped</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>)</span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>res_grouped<span class="sc">$</span>estimates[[<span class="dv">1</span>]]</span></code></pre></div>
+<p>The only requirement is that <code>fold_split(data, K)</code> returns
+a vector of length <code>nrow(data)</code> with integer labels in
+<code>{1, …, K}</code>, and that all folds are non-empty.</p>
+</div>
+<div id="aggregation-functions" class="section level2">
+<h2>7.2 Aggregation functions</h2>
+<p>You can plug in any aggregation you like:</p>
+<ul>
+<li>for numeric estimates: trimmed means, medians, robust
+summaries,</li>
+<li>for predictors: custom ensembles, stacking, etc.</li>
+</ul>
+<p>For example, a simple <strong>trimmed mean</strong> over panels:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>trimmed_mean_estimate <span class="ot">&lt;-</span> <span class="cf">function</span>(xs, <span class="at">trim =</span> <span class="fl">0.1</span>) {</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">unlist</span>(xs)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="fu">mean</span>(x, <span class="at">trim =</span> trim)</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>}</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>m_trim <span class="ot">&lt;-</span> <span class="fu">create_method</span>(</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  <span class="at">target        =</span> target_mse,</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="at">list_nuisance =</span> <span class="fu">list</span>(<span class="at">nuis_y =</span> nuis_y),</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="at">folds         =</span> <span class="dv">4</span>,</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>  <span class="at">repeats       =</span> <span class="dv">5</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  <span class="at">eval_fold     =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>  <span class="at">mode          =</span> <span class="st">&quot;estimate&quot;</span>,</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>  <span class="at">fold_allocation   =</span> <span class="st">&quot;independence&quot;</span>,</span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>  <span class="at">aggregate_panels  =</span> trimmed_mean_estimate,</span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>  <span class="at">aggregate_repeats =</span> trimmed_mean_estimate</span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>)</span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>res_trim <span class="ot">&lt;-</span> <span class="fu">crossfit</span>(data, m_trim)</span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>res_trim<span class="sc">$</span>estimates[[<span class="dv">1</span>]]</span></code></pre></div>
+</div>
+</div>
+<div id="where-to-go-next" class="section level1">
+<h1>8. Where to go next</h1>
+<ul>
+<li><p>Use <code>?crossfit</code>, <code>?crossfit_multi</code>,
+<code>?create_method</code>, <code>?create_nuisance</code> for detailed
+argument reference.</p></li>
+<li><p>Explore the <code>per_method</code> and <code>plan</code>
+components in the result if you need to:</p>
+<ul>
+<li>debug dependency graphs,</li>
+<li>inspect allocated folds,</li>
+<li>or introspect which nuisances are used where.</li>
+</ul></li>
+</ul>
+<p><code>crossfit</code> is meant to be a small, flexible engine: you
+define the nuisances and targets; it takes care of the cross-fitting
+schedule, reuse of models, and basic safety checks (cycles, coverage of
+dependencies, fold geometry).</p>
+<p>If you encounter edge cases or have ideas for higher-level helpers
+(e.g., ready-made DML ATE wrappers), they can be built conveniently on
+top of this core.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
