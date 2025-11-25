@@ -1,4 +1,4 @@
-crossfit
+\# crossfit: Cross-Fitting Engine for Double/Debiased ML
 ================
 
 # crossfit
@@ -303,6 +303,9 @@ browseVignettes("crossfit")
 # or directly:
 vignette("crossfit-intro", package = "crossfit")
 ```
+
+If you encounter a bug or have a feature request, please open an issue
+at: <https://github.com/EtiennePeyrot/crossfit-R/issues>.
 
 ## License
 
