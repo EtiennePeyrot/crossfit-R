@@ -46,14 +46,6 @@ Then load it as usual:
 library(crossfit)
 ```
 
-<!-- (Once the package is on CRAN, you can add:) -->
-
-<!-- ```r -->
-
-<!-- # install.packages("crossfit")   # when/if available on CRAN -->
-
-<!-- ``` -->
-
 ## Overview
 
 `crossfit` is designed for settings where:
@@ -123,7 +115,7 @@ method <- create_method(
   list_nuisance = list(nuis_y = nuis_y),
   folds = 4,
   repeats = 3,
-  eval_fold = 1L,
+  eval_fold = 1,
   mode = "estimate",
   fold_allocation = "independence",
   aggregate_panels  = mean_estimate,
@@ -146,13 +138,14 @@ The `crossfit()` call:
 
 -   returns a list with:
 
--   `estimates` – one entry per method (here just one),
+    -   `estimates` – one entry per method (here just one),
 
--   `per_method` – panel-wise and repetition-wise values and errors,
+    -   `per_method` – panel-wise and repetition-wise values and errors,
 
--   `repeats_done` – number of successful repetitions per method,
+    -   `repeats_done` – number of successful repetitions per method,
 
--   `K`, `K_required`, `methods`, `plan` – diagnostics and internals.
+    -   `K`, `K_required`, `methods`, `plan` – diagnostics and
+        internals.
 
 ## Multiple methods and shared nuisances
 
@@ -174,7 +167,7 @@ m_mse <- create_method(
   list_nuisance = list(nuis_y = nuis_y),
   folds = 4,
   repeats = 3,
-  eval_fold = 1L,
+  eval_fold = 1,
   mode = "estimate",
   fold_allocation = "independence",
   aggregate_panels  = mean_estimate,
@@ -186,7 +179,7 @@ m_mean <- create_method(
   list_nuisance = list(nuis_y = nuis_y),
   folds = 4,
   repeats = 3,
-  eval_fold = 1L,
+  eval_fold = 1,
   mode = "estimate",
   fold_allocation = "overlap",
   aggregate_panels  = mean_estimate,
@@ -216,41 +209,60 @@ predictor you can re-use on new data.
 Here we build a cross-fitted regression function:
 
 ``` r
-# Nuisance is the same as before
-nuis_y <- create_nuisance(
+library(crossfit)
+
+set.seed(1)
+
+# Toy nonlinear regression problem
+n  <- 200
+x  <- runif(n, -2, 2)
+y  <- sin(x) + rnorm(n, sd = 0.3)
+data <- data.frame(x = x, y = y)
+
+# Two simple nuisances: linear and quadratic regressions
+nuis_lin <- create_nuisance(
   fit = function(data, ...) lm(y ~ x, data = data),
   predict = function(model, data, ...) {
     as.numeric(predict(model, newdata = data))
-  }
+  },
+  train_fold = 2
 )
 
-# Target in predict mode: just forwards the nuisance prediction
-target_pred <- function(data, nuis_y, ...) {
-  nuis_y
+nuis_quad <- create_nuisance(
+  fit = function(data, ...) lm(y ~ poly(x, 2), data = data),
+  predict = function(model, data, ...) {
+    as.numeric(predict(model, newdata = data))
+  },
+  train_fold = 2
+)
+
+# Target in "predict" mode: ensemble of the two nuisances
+target_ensemble <- function(data, m_lin, m_quad, ...) {
+  0.5 * m_lin + 0.5 * m_quad
 }
 
-m_pred <- create_method(
-  target = target_pred,
-  list_nuisance = list(nuis_y = nuis_y),
-  folds = 4,
-  repeats = 3,
-  eval_fold = 0L,             # no dedicated eval window in predict mode
-  mode = "predict",
+method_ens <- create_method(
+  target        = target_ensemble,
+  list_nuisance = list(m_lin  = nuis_lin,
+                       m_quad = nuis_quad),
+  folds         = 4,
+  repeats       = 3,
+  eval_fold     = 0, # no eval window in predict mode
+  mode          = "predict",
   fold_allocation = "independence"
 )
 
-res_pred <- crossfit_multi(
+res <- crossfit_multi(
   data    = data,
-  methods = list(pred = m_pred),
+  methods = list(ensemble = method_ens),
   aggregate_panels  = mean_predictor,
   aggregate_repeats = mean_predictor
 )
 
-# In predict mode, estimates$pred is a prediction function
-f_hat <- res_pred$estimates$pred
-
-newdata <- data.frame(x = seq(-1, 1, length.out = 5))
-f_hat(newdata)
+# Cross-fitted ensemble predictor on new data
+f_hat <- res$estimates$ensemble
+newdata <- data.frame(x = seq(-2, 2, length.out = 5))
+cbind(x = newdata$x, y_hat = f_hat(newdata))
 ```
 
 Here:

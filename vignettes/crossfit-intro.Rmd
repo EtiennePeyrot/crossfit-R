@@ -2,7 +2,7 @@
 title: "Introduction to crossfit"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{crossfit-intro}
+  %\VignetteIndexEntry{Introduction to crossfit}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
@@ -21,21 +21,17 @@ library(crossfit) set.seed(1)
 
 # 1. Motivation: why another cross-fitting engine?
 
-Many modern estimators — **double / debiased ML**, meta-learners, etc. —
+Many modern estimators (**double / debiased ML**, meta-learners, etc. )
 share the same pattern:
 
--   We care about a **low-dimensional target**\
-    (ATE, regression risk, a parameter, …)
+-   We care about a **low-dimensional target** (ATE, regression risk, a
+    parameter, …)
 -   This target depends on one or several **high-dimensional nuisance
     functions**\
     $m(x) = E[Y \mid X]$, propensity scores, conditional means, …
 
-If we:
-
-1.  fit the nuisances and
-2.  evaluate the target
-
-on the **same observations**, we usually:
+If we fit the nuisances and evaluate the target on the **same
+observations**, we usually:
 
 -   overfit the nuisances,
 -   and introduce bias in the target that doesn’t vanish nicely.
@@ -77,7 +73,7 @@ nuis_y <- create_nuisance(
   predict = function(model, data, ...) {
     as.numeric(predict(model, newdata = data))
   },
-  train_fold = 2L  # this nuisance will train on 2 consecutive folds
+  train_fold = 2  # this nuisance will train on 2 consecutive folds
 )
 ```
 
@@ -90,8 +86,11 @@ The **target** is just a function of:
 
 Example: cross-fitted mean squared error (MSE) of $m(x)$:
 
-target_mse \<- function(data, nuis_y, ...) { mean((data\$y - nuis_y)\^2)
+``` r
+target_mse <- function(data, nuis_y, ...) {
+  mean((data$y - nuis_y)^2)
 }
+```
 
 During cross-fitting, the engine will:
 
@@ -109,12 +108,19 @@ A **method** bundles:
 -   a list of nuisances,
 -   cross-fitting configuration:
 
-mse_method \<- create_method( target = target_mse, list_nuisance =
-list(nuis_y = nuis_y), folds = 4, \# total number of folds K repeats =
-3, \# how many times to re-draw fold splits eval_fold = 1L, \#
-evaluation window width (in folds) mode = "estimate", fold_allocation =
-"independence", aggregate_panels = mean_estimate, aggregate_repeats =
-mean_estimate )
+``` r
+mse_method <- create_method(
+  target = target_mse,
+  list_nuisance = list(nuis_y = nuis_y),
+  folds = 4, # total number of folds K
+  repeats = 3, # how many times to re-draw fold splits
+  eval_fold = 1, # evaluation window width (in folds)
+  mode = "estimate",
+  fold_allocation = "independence",
+  aggregate_panels = mean_estimate,
+  aggregate_repeats = mean_estimate
+)
+```
 
 Conceptually:
 
@@ -146,10 +152,12 @@ and the method `mse_method`.
 
 ## 3.1 Single-method cross-fitting with `crossfit()`
 
-res \<- crossfit(data, mse_method)
+``` r
+res <- crossfit(data, mse_method)
 
 str(res$estimates)
 res$estimates[[1]]
+```
 
 The result is a list with elements:
 
@@ -160,7 +168,9 @@ The result is a list with elements:
 
 We can inspect the per-repetition values:
 
-res$per_method$method\$values
+``` r
+res$per_method$method$values
+```
 
 Each element in `values` is the aggregated MSE over panels for that
 repetition.
@@ -186,7 +196,7 @@ m_mse <- create_method(
   list_nuisance = list(nuis_y = nuis_y),
   folds         = 4,
   repeats       = 3,
-  eval_fold     = 1L,
+  eval_fold     = 1,
   mode          = "estimate",
   fold_allocation   = "independence",
   aggregate_panels  = mean_estimate,
@@ -198,7 +208,7 @@ m_mean <- create_method(
   list_nuisance = list(nuis_y = nuis_y),
   folds         = 4,
   repeats       = 3,
-  eval_fold     = 1L,
+  eval_fold     = 1,
   mode          = "estimate",
   fold_allocation   = "overlap",
   aggregate_panels  = mean_estimate,
@@ -251,7 +261,7 @@ nuis_lin <- create_nuisance(
   predict = function(model, data, ...) {
     as.numeric(predict(model, newdata = data))
   },
-  train_fold = 2L
+  train_fold = 2
 )
 
 nuis_quad <- create_nuisance(
@@ -259,7 +269,7 @@ nuis_quad <- create_nuisance(
   predict = function(model, data, ...) {
     as.numeric(predict(model, newdata = data))
   },
-  train_fold = 2L
+  train_fold = 2
 )
 ```
 
@@ -287,7 +297,7 @@ m_ens <- create_method(
   ),
   folds         = 4,
   repeats       = 3,
-  eval_fold     = 0L,            # no eval window in predict mode
+  eval_fold     = 0, # no eval window in predict mode
   mode          = "predict",
   fold_allocation   = "independence"
 )
@@ -296,15 +306,20 @@ m_ens <- create_method(
 Run cross-fitting in predict mode, using `mean_predictor()` to aggregate
 panel-level and repetition-level predictors:
 
-res_pred \<- crossfit_multi( data = data2, methods = list(ensemble =
-m_ens), aggregate_panels = mean_predictor, aggregate_repeats =
-mean_predictor )
+``` r
+res_pred <- crossfit_multi(
+  data = data2,
+  methods = list(ensemble = m_ens),
+  aggregate_panels = mean_predictor,
+  aggregate_repeats = mean_predictor
+)
 
 # estimates$ensemble is now a prediction function
-f_hat <- res_pred$estimates\$ensemble
+f_hat <- res_pred$estimates$ensemble
 
-newdata \<- data.frame(x = seq(-2, 2, length.out = 7)) cbind(x =
-newdata\$x, y_hat = f_hat(newdata))
+newdata <- data.frame(x = seq(-2, 2, length.out = 7))
+cbind(x = newdata$x, y_hat = f_hat(newdata))
+```
 
 Here:
 
@@ -357,7 +372,7 @@ mse_overlap <- create_method(
   list_nuisance = list(nuis_y = nuis_y),
   folds         = 4,
   repeats       = 3,
-  eval_fold     = 1L,
+  eval_fold     = 1,
   mode          = "estimate",
   fold_allocation   = "overlap",
   aggregate_panels  = mean_estimate,
