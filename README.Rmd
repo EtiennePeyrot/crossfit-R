@@ -1,5 +1,5 @@
 ---
-title: "# crossfit: Cross-Fitting Engine for Double/Debiased ML"
+title: "crossfit: Cross-Fitting Engine for Double/Debiased ML"
 output: github_document
 editor_options: 
   markdown: 

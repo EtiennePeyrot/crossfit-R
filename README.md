@@ -1,4 +1,4 @@
-\# crossfit: Cross-Fitting Engine for Double/Debiased ML
+crossfit: Cross-Fitting Engine for Double/Debiased ML
 ================
 
 # crossfit
