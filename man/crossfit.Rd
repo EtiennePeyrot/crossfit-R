@@ -8,7 +8,7 @@ crossfit(
   data,
   method,
   fold_split = function(data, K) sample(rep_len(1:K, nrow(data))),
-  seed = 1,
+  seed = NULL,
   max_fail = Inf,
   verbose = FALSE
 )

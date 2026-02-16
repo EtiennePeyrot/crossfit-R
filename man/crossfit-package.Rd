@@ -13,6 +13,14 @@ evaluation windows, and several fold allocation schemes ("independence",
 (mode = "estimate") and cross-fitted prediction functions (mode = "predict"),
 with configurable aggregation over panels and repetitions.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/EtiennePeyrot/crossfit-R}
+  \item Report bugs at \url{https://github.com/EtiennePeyrot/crossfit-R/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Etienne Peyrot \email{etienne.peyrot@inserm.fr} (\href{https://orcid.org/0009-0006-8520-6201}{ORCID})
 

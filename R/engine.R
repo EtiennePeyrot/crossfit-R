@@ -415,7 +415,7 @@ crossfit_multi = function(
     data,
     methods,
     fold_split = function(data, K) sample(rep_len(1:K, nrow(data))),
-    seed = 1,
+    seed = NULL,
     aggregate_panels  = identity,
     aggregate_repeats = identity,
     max_fail = Inf,
@@ -424,6 +424,9 @@ crossfit_multi = function(
 
   if (!(is.infinite(max_fail) && max_fail > 0) && !is.int(max_fail))
     stop("'max_fail' must be a non-negative integer or Inf")
+  if (!(is.null(seed) || (is.numeric(seed) && length(seed) == 1L && is.finite(seed) && seed == as.integer(seed))))
+    stop("'seed' must be either NULL or an integer")
+
 
   if (!is.function(aggregate_panels))
     stop("'aggregate_panels' must be a function")
@@ -462,7 +465,7 @@ crossfit_multi = function(
     # Random K-fold split for this repetition (shared across methods).
     if (!is.function(fold_split))
       stop("'fold_split' must be a function")
-    set.seed(seed + rep_id - 1L)
+    if (!is.null(seed)) set.seed(seed + rep_id - 1L)
     fids = fold_split(data, K)
     if (length(fids) != n)
       stop("'fold_split' must return a vector of length nrow(data)")
@@ -638,7 +641,7 @@ crossfit_multi = function(
 #' cf$estimates
 crossfit = function(data, method,
                     fold_split = function(data, K) sample(rep_len(1:K, nrow(data))),
-                    seed = 1, max_fail = Inf, verbose = FALSE) {
+                    seed = NULL, max_fail = Inf, verbose = FALSE) {
 
   # Reject lists of methods: ask user to call crossfit_multi() directly.
   if (!is.list(method) || is.null(method$target) || !is.function(method$target)) {

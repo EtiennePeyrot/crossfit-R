@@ -8,7 +8,7 @@ crossfit_multi(
   data,
   methods,
   fold_split = function(data, K) sample(rep_len(1:K, nrow(data))),
-  seed = 1,
+  seed = NULL,
   aggregate_panels = identity,
   aggregate_repeats = identity,
   max_fail = Inf,

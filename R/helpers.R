@@ -81,7 +81,7 @@ pass_named = function(fun, args) {
 #' @rdname idx_mod
 #' @keywords internal
 is.int = function(n)
-  is.numeric(n) && length(n) == 1L && is.finite(n) && n >= 0 && n == floor(n)
+  is.numeric(n) && length(n) == 1L && is.finite(n) && n >= 0 && n == as.integer(n)
 
 #' @rdname idx_mod
 #' @keywords internal

@@ -5,3 +5,6 @@
 ^Meta$
 ^cran-comments\.md$
 ^\.github$
+^\.git$
+^\.gitignore$
+^LICENSE$
