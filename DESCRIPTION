@@ -1,6 +1,6 @@
 Package: crossfit
 Title: Cross-Fitting Engine for Double/Debiased Machine Learning
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: 
     person("Etienne", "Peyrot",
            email = "etienne.peyrot@inserm.fr",
