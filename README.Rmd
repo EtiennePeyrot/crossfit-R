@@ -1,5 +1,5 @@
 ---
-title: "crossfit: Cross-Fitting Engine for Double/Debiased ML"
+title: "crossfit: A Graph-Based Cross-Fitting Engine in R"
 output: github_document
 editor_options: 
   markdown: 
@@ -17,32 +17,33 @@ knitr::opts_chunk$set(
 
 # crossfit
 
-A small cross-fitting engine for **double / debiased machine learning**
-and other meta-learners.
+A graph-based, estimator-agnostic **cross-fitting engine** for semiparametric estimation (e.g. double/debiased machine learning) and related meta-learners. `crossfit` makes the cross-fitting schedule explicit and auditable, supports **DAGs of nuisance learners**, and is well-suited for **simulation studies and benchmarking grids**.
 
 The package lets you define:
 
 -   a **target** functional (e.g. ATE, risk, regression error),
--   a **graph of nuisance models** (propensity scores, regressions,
-    etc.),
+-   a **graph of nuisance models** (propensity scores, regressions, etc.),
 -   how many **folds** each node trains on (`train_fold`),
 -   how many **folds** the target evaluates on (`eval_fold`),
 
-and then runs a cross-fitting schedule with configurable aggregation
-over **panels** and **repetitions**.
+and then runs a cross-fitting schedule with configurable aggregation over **panels** and **repetitions**.
 
 ## Installation
 
-You can install the development version from GitHub:
+You can install the released version from CRAN or the development version from GitHub:
 
-``` r
-# install.packages("remotes")
-remotes::install_github("EtiennePeyrot/crossfit-R")
+``` {r, eval=FALSE}
+# Install the released version from CRAN
+install.packages("crossfit")
+
+# Install the development version from GitHub
+install.packages("remotes")
+remotes::install_github("EtiennePeyrot/crossfit-R", build_vignettes = TRUE)
 ```
 
 Then load it as usual:
 
-``` r
+``` {r, eval=FALSE}
 library(crossfit)
 ```
 
@@ -50,44 +51,37 @@ library(crossfit)
 
 `crossfit` is designed for settings where:
 
--   you care about a **low-dimensional target** (ATE, a coefficient, a
-    risk, …),
--   the target depends on **high-dimensional nuisance functions**
-    estimated by ML.
+-   you care about a **low-dimensional target** (ATE, a coefficient, a risk, …),
+-   the target depends on **high-dimensional nuisance functions** estimated by ML.
 
 The engine:
 
--   enforces **out-of-sample** use of nuisances via K-fold
-    cross-fitting,
+-   enforces **out-of-sample** use of nuisances via K-fold cross-fitting,
+
+-   executes an explicit schedule over **folds, panels and repetitions** (useful for auditing and benchmarking),
+
+-   includes **reuse-aware caching** (avoid redundant refits) and **failure isolation** for large experiment grids,
 
 -   supports an arbitrary **DAG of nuisances** (not just one or two),
 
--   lets each node choose its own `train_fold` (how many folds it trains
-    on),
+-   lets each node choose its own `train_fold` (how many folds it trains on),
 
--   lets the target choose its `eval_fold` (how many folds it evaluates
-    on),
+-   lets the target choose its `eval_fold` (how many folds it evaluates on),
 
--   supports several fold allocation schemes: `"independence"`,
-    `"overlap"`, `"disjoint"`,
+-   supports several fold allocation schemes: `"independence"`, `"overlap"`, `"disjoint"`,
 
 -   has two modes:
 
     -   `mode = "estimate"` → returns a numeric estimate of the target,
-    -   `mode = "predict"` → returns a cross-fitted **prediction
-        function**.
+    -   `mode = "predict"` → returns a cross-fitted **prediction function**.
 
-Internally, the graph is normalized into a set of **instances** with
-structural signatures, so that identical models can share fits and be
-cached efficiently.
+Internally, the graph is normalized into a set of **instances** with structural signatures, so that identical models can share fits and be cached efficiently.
 
 ## Quick example: cross-fitted MSE
 
-Here is a minimal example on a simple regression problem.\
-We define a nuisance $m(x) = E[Y \mid X]$ and use the cross-fitted mean
-squared error of this nuisance as our target.
+Here is a minimal example on a simple regression problem. We define a nuisance $m(x) = E[Y \mid X]$ and use the cross-fitted mean squared error of this nuisance as our target.
 
-``` r
+``` {r, eval=FALSE}
 library(crossfit)
 
 set.seed(1)
@@ -144,21 +138,19 @@ The `crossfit()` call:
 
     -   `repeats_done` – number of successful repetitions per method,
 
-    -   `K`, `K_required`, `methods`, `plan` – diagnostics and
-        internals.
+    -   `K`, `K_required`, `methods`, `plan` – diagnostics and internals.
 
 ## Multiple methods and shared nuisances
 
-You can run several methods in parallel, sharing some or all nuisances.
-For example, we can estimate both:
+You can run several methods in parallel, sharing some or all nuisances. For example, we can estimate both:
 
 -   the cross-fitted MSE of $m(x)$,
 -   the cross-fitted **mean** of $m(x)$,
 
 in a single call:
 
-``` r
-target_mean <- function(data, nuis_y, ...) {
+``` {r, eval=FALSE}
+target_mean <- function(data, nuis_y) {
   mean(nuis_y)
 }
 
@@ -196,19 +188,15 @@ cf_multi <- crossfit_multi(
 cf_multi$estimates
 ```
 
-The two methods share the fitted nuisance models whenever their
-structure and training folds coincide, which can save a lot of
-computation when you compare multiple learners or targets.
+The two methods share the fitted nuisance models whenever their structure and training folds coincide, which can save a lot of computation when you compare multiple learners or targets.
 
 ## Predict mode: cross-fitted predictor
 
-In `"predict"` mode, the engine returns a **prediction function**
-instead of a numeric estimate. This is useful if you want a cross-fitted
-predictor you can re-use on new data.
+In `"predict"` mode, the engine returns a **prediction function** instead of a numeric estimate. This is useful if you want a cross-fitted predictor you can re-use on new data.
 
 Here we build a cross-fitted regression function:
 
-``` r
+``` {r, eval=FALSE}
 library(crossfit)
 
 set.seed(1)
@@ -268,15 +256,13 @@ cbind(x = newdata$x, y_hat = f_hat(newdata))
 Here:
 
 -   Each repetition builds cross-fitted predictors,
--   `mean_predictor()` aggregates the list of predictors into a single
-    ensemble,
+-   `mean_predictor()` aggregates the list of predictors into a single ensemble,
 -   `f_hat(newdata)` gives cross-fitted predictions on future data.
 
 ## Key functions
 
 -   `create_nuisance()`\
-    Define a nuisance node via `fit` / `predict`, `train_fold`, and
-    optional dependency mappings (`fit_deps`, `pred_deps`).
+    Define a nuisance node via `fit` / `predict`, `train_fold`, and optional dependency mappings (`fit_deps`, `pred_deps`).
 
 -   `create_method()`\
     Define a method:
@@ -293,21 +279,18 @@ Here:
     Run cross-fitting for a **single** method.
 
 -   `crossfit_multi()`\
-    Run cross-fitting for **several** methods in parallel, with shared
-    nuisances and shared K-fold splits.
+    Run cross-fitting for **several** methods in parallel, with shared nuisances and shared K-fold splits.
 
 -   Aggregators:
 
-    -   `mean_estimate()`, `median_estimate()` – combine numeric panel /
-        repetition results.
-    -   `mean_predictor()`, `median_predictor()` – combine lists of
-        prediction functions when `mode = "predict"`.
+    -   `mean_estimate()`, `median_estimate()` – combine numeric panel / repetition results.
+    -   `mean_predictor()`, `median_predictor()` – combine lists of prediction functions when `mode = "predict"`.
 
 ## Further documentation
 
 See:
 
-``` r
+``` {r, eval=FALSE}
 ?crossfit
 ?crossfit_multi
 ?create_method
@@ -316,14 +299,13 @@ See:
 
 You can find a more detailed introduction in the package vignette:
 
-``` r
+``` {r, eval=FALSE}
 browseVignettes("crossfit")
 # or directly:
 vignette("crossfit-intro", package = "crossfit")
 ```
 
-If you encounter a bug or have a feature request, please open an issue
-at: <https://github.com/EtiennePeyrot/crossfit-R/issues>.
+If you encounter a bug or have a feature request, please open an issue at: <https://github.com/EtiennePeyrot/crossfit-R/issues>.
 
 ## License
 

@@ -1,10 +1,13 @@
-crossfit: Cross-Fitting Engine for Double/Debiased ML
+crossfit: A Graph-Based Cross-Fitting Engine in R
 ================
 
 # crossfit
 
-A small cross-fitting engine for **double / debiased machine learning**
-and other meta-learners.
+A graph-based, estimator-agnostic **cross-fitting engine** for
+semiparametric estimation (e.g. double/debiased machine learning) and
+related meta-learners. `crossfit` makes the cross-fitting schedule
+explicit and auditable, supports **DAGs of nuisance learners**, and is
+well-suited for **simulation studies and benchmarking grids**.
 
 The package lets you define:
 
@@ -18,11 +21,16 @@ over **panels** and **repetitions**.
 
 ## Installation
 
-You can install the development version from GitHub:
+You can install the released version from CRAN or the development
+version from GitHub:
 
 ``` r
-# install.packages("remotes")
-remotes::install_github("EtiennePeyrot/crossfit-R")
+# Install the released version from CRAN
+install.packages("crossfit")
+
+# Install the development version from GitHub
+install.packages("remotes")
+remotes::install_github("EtiennePeyrot/crossfit-R", build_vignettes = TRUE)
 ```
 
 Then load it as usual:
@@ -43,6 +51,12 @@ library(crossfit)
 The engine:
 
 - enforces **out-of-sample** use of nuisances via K-fold cross-fitting,
+
+- executes an explicit schedule over **folds, panels and repetitions**
+  (useful for auditing and benchmarking),
+
+- includes **reuse-aware caching** (avoid redundant refits) and
+  **failure isolation** for large experiment grids,
 
 - supports an arbitrary **DAG of nuisances** (not just one or two),
 
@@ -66,9 +80,9 @@ cached efficiently.
 
 ## Quick example: cross-fitted MSE
 
-Here is a minimal example on a simple regression problem.  
-We define a nuisance $`m(x) = E[Y \mid X]`$ and use the cross-fitted
-mean squared error of this nuisance as our target.
+Here is a minimal example on a simple regression problem. We define a
+nuisance $m(x) = E[Y \mid X]$ and use the cross-fitted mean squared
+error of this nuisance as our target.
 
 ``` r
 library(crossfit)
@@ -134,13 +148,13 @@ The `crossfit()` call:
 You can run several methods in parallel, sharing some or all nuisances.
 For example, we can estimate both:
 
-- the cross-fitted MSE of $`m(x)`$,
-- the cross-fitted **mean** of $`m(x)`$,
+- the cross-fitted MSE of $m(x)$,
+- the cross-fitted **mean** of $m(x)$,
 
 in a single call:
 
 ``` r
-target_mean <- function(data, nuis_y, ...) {
+target_mean <- function(data, nuis_y) {
   mean(nuis_y)
 }
 
