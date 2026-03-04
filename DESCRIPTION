@@ -1,6 +1,6 @@
 Package: crossfit
 Title: A Graph-Based Cross-Fitting Engine in R
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person("Etienne", "Peyrot",
            email = "etienne.peyrot@inserm.fr",
