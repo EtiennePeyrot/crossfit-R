@@ -41,7 +41,7 @@ a single method named \code{"method"}. The final estimate is in
 Convenience wrapper around \code{\link{crossfit_multi}} for the
 common case of a single method. It enforces that \code{method} is a
 single method specification and forwards the aggregation functions
-stored inside \code{method}.
+stored inside \code{method_1}.
 }
 \examples{
 set.seed(1)
