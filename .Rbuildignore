@@ -8,3 +8,4 @@
 ^\.git$
 ^\.gitignore$
 ^LICENSE$
+^CRAN-SUBMISSION$
