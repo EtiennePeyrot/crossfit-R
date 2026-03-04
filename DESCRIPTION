@@ -1,5 +1,5 @@
 Package: crossfit
-Title: Cross-Fitting Engine for Double/Debiased Machine Learning
+Title: A Graph-Based Cross-Fitting Engine in R
 Version: 0.1.1
 Authors@R: 
     person("Etienne", "Peyrot",
@@ -7,15 +7,15 @@ Authors@R:
            role = c("aut", "cre"),
 	   comment = c(ORCID = "0009-0006-8520-6201")
     )
-Description: Provides a general cross-fitting engine for double /
-    debiased machine learning and other meta-learners. The core
-    functions implement flexible graphs of nuisance models with
-    per-node training fold widths, target-specific evaluation
-    windows, and several fold allocation schemes ("independence",
-    "overlap", "disjoint"). The engine supports both numeric
-    estimators (mode = "estimate") and cross-fitted prediction
-    functions (mode = "predict"), with configurable aggregation
-    over panels and repetitions.
+Description: Provides a general cross-fitting engine for semiparametric estimation
+(e.g., double/debiased machine learning). Supports user-defined target
+functionals and directed acyclic graphs (DAGs) of nuisance learners with
+per-node training fold widths, target-specific evaluation windows, and
+fold-allocation modes ("overlap", "disjoint", "independence"). Returns
+either numeric estimates (mode = "estimate") or cross-fitted prediction
+functions (mode = "predict"), with configurable aggregation over panels
+and repetitions, reuse-aware caching, and failure isolation, making it
+well-suited for simulation studies and large benchmarks.
 License: GPL-3
 URL: https://github.com/EtiennePeyrot/crossfit-R
 BugReports: https://github.com/EtiennePeyrot/crossfit-R/issues

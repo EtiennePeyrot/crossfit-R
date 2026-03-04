@@ -586,7 +586,7 @@ crossfit_multi = function(
 #' Convenience wrapper around \code{\link{crossfit_multi}} for the
 #' common case of a single method. It enforces that \code{method} is a
 #' single method specification and forwards the aggregation functions
-#' stored inside \code{method}.
+#' stored inside \code{method_1}.
 #'
 #' @param data Data frame or matrix with the observations.
 #' @param method A single method specification (list) created by
