@@ -1,8 +1,6 @@
 crossfit: A Graph-Based Cross-Fitting Engine in R
 ================
 
-# crossfit
-
 A graph-based, estimator-agnostic **cross-fitting engine** for
 semiparametric estimation (e.g. double/debiased machine learning) and
 related meta-learners. `crossfit` makes the cross-fitting schedule

@@ -15,8 +15,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# crossfit
-
 A graph-based, estimator-agnostic **cross-fitting engine** for semiparametric estimation (e.g. double/debiased machine learning) and related meta-learners. `crossfit` makes the cross-fitting schedule explicit and auditable, supports **DAGs of nuisance learners**, and is well-suited for **simulation studies and benchmarking grids**.
 
 The package lets you define:
