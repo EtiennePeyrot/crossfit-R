@@ -10,8 +10,8 @@ Authors@R:
 Description: 
     Provides a general cross-fitting engine for semiparametric estimation
     (e.g., double/debiased machine learning). Supports user-defined target
-    functionals and directed acyclic graphs (DAGs) of nuisance learners with
-    per-node training fold widths, target-specific evaluation windows, and
+    functionals and directed acyclic graphs of nuisance learners with per-node
+    training fold widths, target-specific evaluation windows, and
     fold-allocation modes ("overlap", "disjoint", "independence"). Returns
     either numeric estimates (mode = "estimate") or cross-fitted prediction
     functions (mode = "predict"), with configurable aggregation over panels
