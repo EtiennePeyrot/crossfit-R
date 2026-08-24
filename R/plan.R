@@ -3,62 +3,50 @@
 #' Internal: create a function registry
 #'
 #' Constructs a small environment used to deduplicate identical
-#' \code{fit()} / \code{predict()} functions across methods. Functions
-#' are represented by string signatures (via \code{\link{fun_code_sig}})
-#' stored in \code{$sigs}.
+#' \code{fit()} / \code{predict()} functions across methods. The function
+#' objects themselves are retained so that formal defaults and captured
+#' environments are part of the identity check.
 #'
-#' @return An environment with a character vector component \code{sigs}
+#' @return An environment with a list component \code{functions}
 #'   used by \code{\link{fun_registry_id}}.
 #'
 #' @keywords internal
 fun_registry_new = function() {
   e = new.env(parent = emptyenv())
-  e$sigs = character(0)
+  e$functions = list()
   e
 }
 
-#' Internal: compute a code signature for a function
+#' Internal: assign an integer id to a function
 #'
-#' Builds a crude but stable code signature for a function based on its
-#' argument names and body. Argument names are sorted (to avoid
-#' dependence on declaration order) and the body is \code{deparse()}d
-#' into a single string. The result is used as a key for function
-#' deduplication.
-#'
-#' @param f A function object.
-#'
-#' @return A single character string representing the function's code
-#'   signature.
-#'
-#' @keywords internal
-fun_code_sig = function(f) {
-  fm = sort(names(formals(f))); bd = deparse(body(f))
-  paste(c("F:", paste(fm, collapse = ","), "B:", paste(bd, collapse = "")), collapse = "")
-}
-
-#' Internal: assign an integer id to a function signature
-#'
-#' Maps a function code signature (as produced by
-#' \code{\link{fun_code_sig}}) to a small integer id in a registry. If
-#' the signature is new, it is appended to the registry; otherwise, the
-#' existing id is returned. This is used to keep structural signatures
-#' compact.
+#' Maps a function object to a small integer id in a registry. Functions are
+#' compared with \code{identical()}, so two closures with the same body but
+#' different captured state are not conflated. If the function is new, it is
+#' appended to the registry; otherwise, the existing id is returned. This is
+#' used to keep structural signatures compact.
 #'
 #' @param reg A registry environment created by
 #'   \code{\link{fun_registry_new}}.
-#' @param sig A character string code signature.
+#' @param fun A function object.
 #'
-#' @return An integer id corresponding to \code{sig} within
+#' @return An integer id corresponding to \code{fun} within
 #'   \code{reg}.
 #'
 #' @keywords internal
-fun_registry_id = function(reg, sig) {
-  idx = match(sig, reg$sigs, nomatch = 0L)
-  if (idx == 0L) {
-    reg$sigs = c(reg$sigs, sig)
-    idx = length(reg$sigs)
+fun_registry_id = function(reg, fun) {
+  if (!is.function(fun)) stop("'fun' must be a function")
+
+  same = vapply(
+    reg$functions,
+    function(registered) identical(registered, fun),
+    logical(1)
+  )
+  idx = which(same)
+  if (!length(idx)) {
+    reg$functions[[length(reg$functions) + 1L]] = fun
+    idx = length(reg$functions)
   }
-  idx
+  as.integer(idx[[1L]])
 }
 
 # Plan / instances --------------------------------------------------------
@@ -246,8 +234,7 @@ build_instances = function(methods) {
     inst = insts[[key]]
     nf   = methods[[inst$method_idx]]$nuisance[[inst$name]]
 
-    fit_sig = fun_code_sig(nf$fit)
-    fit_id  = fun_registry_id(fun_registry, fit_sig)
+    fit_id = fun_registry_id(fun_registry, nf$fit)
 
     base = paste(
       paste0("FIT#", fit_id),
@@ -263,8 +250,7 @@ build_instances = function(methods) {
       ck = fc[[arg]]
       ch_inst = insts[[ck]]
       child_nf = methods[[ch_inst$method_idx]]$nuisance[[ch_inst$name]]
-      child_pred_sig = fun_code_sig(child_nf$predict)
-      child_pred_id  = fun_registry_id(fun_registry, child_pred_sig)
+      child_pred_id = fun_registry_id(fun_registry, child_nf$predict)
       child_struct_sig = struct_sig_for(ck)
       child_off = inst_offset[[ck]]
       rel_off   = child_off - parent_off

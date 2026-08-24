@@ -116,8 +116,8 @@ method <- create_method(
 
 res <- crossfit(data, method)
 
-str(res$estimates)
-res$estimates[[1]]
+str(res$estimate)
+res$estimate
 ```
 
 The `crossfit()` call:
@@ -130,13 +130,13 @@ The `crossfit()` call:
 
 -   returns a list with:
 
-    -   `estimates` – one entry per method (here just one),
+    -   `estimate` – the final estimate (or prediction function),
 
-    -   `per_method` – panel-wise and repetition-wise values and errors,
+    -   `results` – repetition-wise values and error traces,
 
-    -   `repeats_done` – number of successful repetitions per method,
+    -   `repeats_done` – number of successful repetitions,
 
-    -   `K`, `K_required`, `methods`, `plan` – diagnostics and internals.
+    -   `K`, `K_required`, `method`, `plan` – diagnostics and internals.
 
 ## Multiple methods and shared nuisances
 
@@ -271,7 +271,10 @@ Here:
     -   `mode` (`"estimate"` or `"predict"`),
     -   `eval_fold`,
     -   `fold_allocation`,
-    -   optional `aggregate_panels`, `aggregate_repeats`.
+    -   optional `aggregate_panels`, `aggregate_repeats`, and `failure_control`.
+
+-   `crossfit_failure_control()`\
+    Configure whether panel errors fail a repetition, whether failed shared fits may prune later methods, and how many failed repetitions are allowed.
 
 -   `crossfit()`\
     Run cross-fitting for a **single** method.
@@ -293,6 +296,7 @@ See:
 ?crossfit_multi
 ?create_method
 ?create_nuisance
+?crossfit_failure_control
 ```
 
 You can find a more detailed introduction in the package vignette:

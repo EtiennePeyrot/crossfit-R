@@ -2,25 +2,25 @@
 % Please edit documentation in R/plan.R
 \name{fun_registry_id}
 \alias{fun_registry_id}
-\title{Internal: assign an integer id to a function signature}
+\title{Internal: assign an integer id to a function}
 \usage{
-fun_registry_id(reg, sig)
+fun_registry_id(reg, fun)
 }
 \arguments{
 \item{reg}{A registry environment created by
 \code{\link{fun_registry_new}}.}
 
-\item{sig}{A character string code signature.}
+\item{fun}{A function object.}
 }
 \value{
-An integer id corresponding to \code{sig} within
+An integer id corresponding to \code{fun} within
 \code{reg}.
 }
 \description{
-Maps a function code signature (as produced by
-\code{\link{fun_code_sig}}) to a small integer id in a registry. If
-the signature is new, it is appended to the registry; otherwise, the
-existing id is returned. This is used to keep structural signatures
-compact.
+Maps a function object to a small integer id in a registry. Functions are
+compared with \code{identical()}, so two closures with the same body but
+different captured state are not conflated. If the function is new, it is
+appended to the registry; otherwise, the existing id is returned. This is
+used to keep structural signatures compact.
 }
 \keyword{internal}

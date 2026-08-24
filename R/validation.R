@@ -114,7 +114,7 @@ validate_nuisance = function(nf, nm = NULL, mname = NULL) {
 #' This includes:
 #' \itemize{
 #'   \item checking \code{mode}, \code{eval_fold}, \code{folds},
-#'         and \code{repeats},
+#'         \code{repeats}, and failure controls,
 #'   \item validating the nuisance container,
 #'   \item checking that the target is a function and that its required
 #'         arguments are nuisances,
@@ -169,6 +169,12 @@ validate_method = function(met, mname = NULL) {
   if (!(is.int(r) && r > 0L))
     stop(paste0(prefix_m, "'repeats' must be a positive integer"))
   met$repeats = as.integer(r)
+
+  # Normalize the method's failure controls.
+  met$failure_control = validate_failure_control(
+    met$failure_control,
+    prefix = prefix_m
+  )
 
   # Aggregation functions must be functions or NULL if provided.
   ap = met$aggregate_panels
@@ -388,7 +394,8 @@ create_nuisance = function(fit,
 #'   \item a named list of nuisance specifications,
 #'   \item cross-fitting geometry (\code{folds}, \code{repeats},
 #'         \code{eval_fold}, \code{mode}, \code{fold_allocation}),
-#'   \item and panel / repetition aggregation functions.
+#'   \item panel / repetition aggregation functions,
+#'   \item and method-specific failure handling.
 #' }
 #'
 #' The returned list is validated by \code{validate_method()} to ensure
@@ -432,6 +439,9 @@ create_nuisance = function(fit,
 #'   \code{\link{median_predictor}}, or a custom function. May be
 #'   \code{NULL}, in which case a global default can be supplied via
 #'   \code{\link{crossfit_multi}}.
+#' @param failure_control A named list created by
+#'   \code{\link{crossfit_failure_control}}, or a partial named list of its
+#'   fields. Missing fields use their documented defaults.
 #'
 #' @return A method specification list suitable for use in
 #'   \code{\link{crossfit}} or \code{\link{crossfit_multi}}.
@@ -463,7 +473,10 @@ create_nuisance = function(fit,
 #'   mode = "estimate",
 #'   fold_allocation = "independence",
 #'   aggregate_panels  = mean_estimate,
-#'   aggregate_repeats = mean_estimate
+#'   aggregate_repeats = mean_estimate,
+#'   failure_control = crossfit_failure_control(
+#'     fail_repetition_on_error = FALSE
+#'   )
 #' )
 #'
 #' str(m)
@@ -475,9 +488,11 @@ create_method = function(target,
                          eval_fold = if (mode == "estimate") 1L else 0L,
                          fold_allocation = c("independence", "overlap", "disjoint"),
                          aggregate_panels = NULL,
-                         aggregate_repeats = NULL) {
+                         aggregate_repeats = NULL,
+                         failure_control = crossfit_failure_control()) {
   mode = match.arg(mode)
   fold_allocation = match.arg(fold_allocation)
+  failure_control = validate_failure_control(failure_control)
 
   met = list(
     target            = target,
@@ -488,7 +503,8 @@ create_method = function(target,
     eval_fold         = eval_fold,
     fold_allocation   = fold_allocation,
     aggregate_panels  = aggregate_panels,
-    aggregate_repeats = aggregate_repeats
+    aggregate_repeats = aggregate_repeats,
+    failure_control   = failure_control
   )
 
   # Validate but do not store the validated result; this ensures the

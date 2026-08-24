@@ -5,8 +5,8 @@ vignette: >
   %\VignetteIndexEntry{Introduction to crossfit}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
-  markdown: 
+editor_options:
+  markdown:
     wrap: 72
 ---
 
@@ -155,21 +155,21 @@ and the method `mse_method`.
 ``` r
 res <- crossfit(data, mse_method)
 
-str(res$estimates)
-res$estimates[[1]]
+str(res$estimate)
+res$estimate
 ```
 
 The result is a list with elements:
 
--   `estimates` – one entry per method (here only one),
--   `per_method` – panel-wise and repetition-wise values and errors,
+-   `estimate` – the final estimate (or prediction function),
+-   `results` – repetition-wise values and error traces,
 -   `repeats_done` – how many repetitions successfully ran,
--   `K`, `K_required`, `methods`, `plan` – extra diagnostics.
+-   `K`, `K_required`, `method`, `plan` – extra diagnostics.
 
 We can inspect the per-repetition values:
 
 ``` r
-res$per_method$method$values
+res$results$values
 ```
 
 Each element in `values` is the aggregated MSE over panels for that
@@ -416,7 +416,7 @@ res_grouped <- crossfit(
   fold_split = fold_split_grouped
 )
 
-res_grouped$estimates[[1]]
+res_grouped$estimate
 ```
 
 The only requirement is that `fold_split(data, K)` returns a vector of
@@ -451,15 +451,51 @@ m_trim <- create_method(
 )
 
 res_trim <- crossfit(data, m_trim)
-res_trim$estimates[[1]]
+res_trim$estimate
 ```
+
+## 7.3 Failure handling
+
+Failure handling is configured for each method:
+
+``` r
+default_failure_control <- crossfit_failure_control()
+```
+
+By default, the first panel error fails the current repetition. To attempt all
+panels and pass failed panel results as `NA_real_` to the panel aggregator, set
+`fail_repetition_on_error = FALSE`:
+
+``` r
+available_mean <- function(xs) mean(unlist(xs), na.rm = TRUE)
+
+m_available <- create_method(
+  target        = target_mse,
+  list_nuisance = list(nuis_y = nuis_y),
+  folds         = 4,
+  repeats       = 5,
+  eval_fold     = 1L,
+  mode          = "estimate",
+  fold_allocation   = "independence",
+  aggregate_panels  = available_mean,
+  aggregate_repeats = available_mean,
+  failure_control = crossfit_failure_control(
+    fail_repetition_on_error = FALSE
+  )
+)
+```
+
+Set `prune_on_shared_fit_failure = TRUE` to skip a method when a structurally
+identical nuisance fit has already failed in the same repetition.
+`max_failed_repetitions` sets how many failed repetitions are allowed before
+the method is disabled.
 
 # 8. Where to go next
 
 -   Use `?crossfit`, `?crossfit_multi`, `?create_method`,
     `?create_nuisance` for detailed argument reference.
 
--   Explore the `per_method` and `plan` components in the result if you
+-   Explore `results` (or `per_method` from `crossfit_multi()`) and `plan` if you
     need to:
 
     -   debug dependency graphs,

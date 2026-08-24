@@ -1,6 +1,6 @@
 # tests/testthat/test-failure-isolation-max_fail.R
 
-test_that("failure isolation: one failing method does not crash others; max_fail disables it", {
+test_that("failure isolation: one failing method does not crash others", {
   set.seed(61)
   n <- 80
   dat <- data.frame(x = rnorm(n), y = rnorm(n))
@@ -30,7 +30,7 @@ test_that("failure isolation: one failing method does not crash others; max_fail
     mode = "estimate",
     fold_allocation = "independence",
     aggregate_panels  = mean_estimate,
-    aggregate_repeats = safe_mean_estimate   # <-- important
+    aggregate_repeats = safe_mean_estimate
   )
 
   # Bad method: nuisance fit always fails
@@ -49,16 +49,18 @@ test_that("failure isolation: one failing method does not crash others; max_fail
     mode = "estimate",
     fold_allocation = "independence",
     aggregate_panels  = mean_estimate,
-    aggregate_repeats = safe_mean_estimate   # <-- important
+    aggregate_repeats = safe_mean_estimate,
+    failure_control = crossfit_failure_control(
+      max_failed_repetitions = 0L
+    )
   )
 
   res <- crossfit_multi(
     data = dat,
     methods = list(good = m_good, bad = m_bad),
     seed = 1,
-    max_fail = 0L,
     aggregate_panels  = mean_estimate,
-    aggregate_repeats = safe_mean_estimate   # optional, but consistent
+    aggregate_repeats = safe_mean_estimate
   )
 
   expect_true(is.numeric(res$estimates$good))

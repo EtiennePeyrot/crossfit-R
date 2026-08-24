@@ -13,8 +13,19 @@ test_that("no leakage: target never uses nuisance trained on its evaluation fold
   # Helper: extract the list of training folds from the model trace string
   extract_train_folds <- function(model_trace) {
     # model_trace looks like: "nuis_y trained_on [1,2,3]"
-    inside <- sub(".*trained_on \\[([^\\]]+)\\].*", "\\1", model_trace)
-    as.integer(strsplit(inside, ",", fixed = TRUE)[[1]])
+    hit <- regexec("trained_on \\[([0-9,]+)\\]", model_trace)
+    parts <- regmatches(model_trace, hit)[[1L]]
+
+    if (length(parts) != 2L) {
+      stop("Could not parse training folds from: ", model_trace)
+    }
+
+    folds <- as.integer(strsplit(parts[[2L]], ",", fixed = TRUE)[[1L]])
+    if (!length(folds) || anyNA(folds)) {
+      stop("Parsed training folds are invalid: ", model_trace)
+    }
+
+    folds
   }
 
   # For counting target evaluations (one per panel)
@@ -25,7 +36,7 @@ test_that("no leakage: target never uses nuisance trained on its evaluation fold
   # Nuisance: fit() returns a string describing training folds.
   # predict() returns strings describing which model predicted on which eval fold.
   nuis_y <- create_nuisance(
-    train_fold = 1L, # simplest: train on K-1 folds in standard cross-fitting
+    train_fold = 1L, # one-fold training window
     fit = function(data, ...) {
       tr <- paste(sort(unique(data$fold)), collapse = ",")
       paste0("nuis_y trained_on [", tr, "]")
@@ -51,10 +62,7 @@ test_that("no leakage: target never uses nuisance trained on its evaluation fold
 
     # nuis_y is a vector of strings; take one representative and parse training folds
     one_pred <- nuis_y[[1]]
-    # one_pred starts with the model string that contains trained_on [...]
-    # e.g. "nuis_y trained_on [1,2,3,4] predict_on [5]"
-    model_part <- sub("(nuis_y trained_on \\[[^\\]]+\\]).*", "\\1", one_pred)
-    train_folds <- extract_train_folds(model_part)
+    train_folds <- extract_train_folds(one_pred)
 
     if (eval_fold %in% train_folds) {
       stop("Leakage detected: eval fold ", eval_fold,

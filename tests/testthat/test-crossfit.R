@@ -102,18 +102,17 @@ test_that("crossfit works on a simple regression problem", {
   res <- crossfit(dat, method)
 
   expect_type(res, "list")
-  expect_equal(length(res$estimates), 1L)
-
-  mname <- names(res$estimates)
-  expect_true(is.character(mname))
-  expect_equal(length(mname), 1L)
-  expect_true(nzchar(mname))
-
-  expect_true(is.numeric(res$estimates[[mname]]))
-  expect_equal(length(res$estimates[[mname]]), 1L)
+  expect_named(
+    res,
+    c("estimate", "results", "repeats_done", "K", "K_required", "method", "plan")
+  )
+  expect_true(is.numeric(res$estimate))
+  expect_equal(length(res$estimate), 1L)
+  expect_named(res$results, c("values", "errors"))
+  expect_equal(length(res$results$values), 2L)
 
   # repetitions and K are as requested
-  expect_equal(res$repeats_done[[mname]], 2L)
+  expect_equal(res$repeats_done, 2L)
   expect_equal(res$K, 2L)
 })
 

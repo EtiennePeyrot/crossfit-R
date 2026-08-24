@@ -330,10 +330,6 @@ predict_instance_for_token = function(inst_key, token, data, methods, plan, fit_
 #'   aggregator over repetitions for each method. It is applied to the
 #'   list of per-repetition aggregated values. Methods can override this
 #'   via their own \code{aggregate_repeats}.
-#' @param max_fail Non-negative integer or \code{Inf} controlling how
-#'   many repetitions a method is allowed to fail before being disabled.
-#'   Structural model failures and panel-level errors both count toward
-#'   this limit.
 #' @param verbose Logical; if \code{TRUE}, prints a compact status line
 #'   per repetition.
 #'
@@ -343,7 +339,8 @@ predict_instance_for_token = function(inst_key, token, data, methods, plan, fit_
 #'           (after aggregating over panels and repetitions).}
 #'     \item{\code{per_method}}{For each method, a list with
 #'           \code{values} (per-repetition aggregated results) and
-#'           \code{errors} (error traces).}
+#'           \code{errors} (panel and aggregation error traces, including
+#'           errors tolerated by a method's panel aggregator).}
 #'     \item{\code{repeats_done}}{Number of repetitions successfully
 #'           completed for each method.}
 #'     \item{\code{K}}{Number of folds used in the plan.}
@@ -418,12 +415,9 @@ crossfit_multi = function(
     seed = NULL,
     aggregate_panels  = identity,
     aggregate_repeats = identity,
-    max_fail = Inf,
     verbose = FALSE
 ) {
 
-  if (!(is.infinite(max_fail) && max_fail > 0) && !is.int(max_fail))
-    stop("'max_fail' must be a non-negative integer or Inf")
   if (!(is.null(seed) || (is.numeric(seed) && length(seed) == 1L && is.finite(seed) && seed == as.integer(seed))))
     stop("'seed' must be either NULL or an integer")
 
@@ -483,11 +477,15 @@ crossfit_multi = function(
     for (mi in which(active)) {
       m_name = names(methods)[mi]
       mode_m = methods[[mi]]$mode
+      failure_control = methods[[mi]]$failure_control
 
-      # If any structural nuisance has already failed in this repetition,
-      # skip this method for the current repetition only
+      # Reuse recorded structural failures when pruning is enabled.
       m_structs = plan$method_structs[[m_name]]
-      fail_sig = intersect(m_structs, ls(plan$fail_env))
+      fail_sig = if (failure_control$prune_on_shared_fit_failure) {
+        intersect(m_structs, ls(plan$fail_env))
+      } else {
+        character(0)
+      }
       if (length(fail_sig)) {
         met_insts = plan$instances[plan$method_inst_keys[[m_name]]]
         inst_sigs = vapply(met_insts, `[[`, character(1), "struct_sig")
@@ -502,7 +500,8 @@ crossfit_multi = function(
           )
         )
         fail_count[[m_name]] = fail_count[[m_name]] + 1L
-        if (fail_count[[m_name]] > max_fail) active[idx_map[m_name]] = FALSE
+        if (fail_count[[m_name]] > failure_control$max_failed_repetitions)
+          active[idx_map[m_name]] = FALSE
         next
       }
 
@@ -525,29 +524,47 @@ crossfit_multi = function(
         if (inherits(val, "try-error")) {
           panel_errs[[p]] = as.character(val)
           panel_vals[[p]] = NA_real_
-          break
+          if (failure_control$fail_repetition_on_error) break
         } else {
           panel_vals[[p]] = val
         }
       }
 
-      # If any panel threw an error, keep the error traces.
+      # Apply the method's panel-error policy.
       has_err = any(!vapply(panel_errs, is.null, logical(1)))
-      if (has_err) {
+      if (has_err && failure_control$fail_repetition_on_error) {
         err_l = length(est_per_method[[m_name]]$errors)
         est_per_method[[m_name]]$errors[[err_l + 1L]] = panel_errs
         fail_count[[m_name]] = fail_count[[m_name]] + 1L
-        if (fail_count[[m_name]] > max_fail) active[idx_map[m_name]] = FALSE
-      } else {
-        # Otherwise aggregate over panels and record this repetition.
-        agg_fun_panels = methods[[mi]]$aggregate_panels
-        agg = agg_fun_panels(panel_vals)
-        est_l = length(est_per_method[[m_name]]$values)
-        est_per_method[[m_name]]$values[[est_l + 1L]] = agg
-
-        rep_done[[m_name]] = rep_done[[m_name]] + 1L
-        if (rep_done[[m_name]] >= R_need[m_name]) active[idx_map[m_name]] = FALSE
+        if (fail_count[[m_name]] > failure_control$max_failed_repetitions)
+          active[idx_map[m_name]] = FALSE
+        next
       }
+
+      agg_fun_panels = methods[[mi]]$aggregate_panels
+      agg = try(agg_fun_panels(panel_vals), silent = TRUE)
+      if (inherits(agg, "try-error")) {
+        error_trace = panel_errs
+        error_trace$aggregation_error = as.character(agg)
+        err_l = length(est_per_method[[m_name]]$errors)
+        est_per_method[[m_name]]$errors[[err_l + 1L]] = error_trace
+        fail_count[[m_name]] = fail_count[[m_name]] + 1L
+        if (fail_count[[m_name]] > failure_control$max_failed_repetitions)
+          active[idx_map[m_name]] = FALSE
+        next
+      }
+
+      # Keep tolerated panel errors as diagnostics even when aggregation works.
+      if (has_err) {
+        err_l = length(est_per_method[[m_name]]$errors)
+        est_per_method[[m_name]]$errors[[err_l + 1L]] = panel_errs
+      }
+
+      est_l = length(est_per_method[[m_name]]$values)
+      est_per_method[[m_name]]$values[[est_l + 1L]] = agg
+
+      rep_done[[m_name]] = rep_done[[m_name]] + 1L
+      if (rep_done[[m_name]] >= R_need[m_name]) active[idx_map[m_name]] = FALSE
     }
 
     if (verbose) {
@@ -583,10 +600,8 @@ crossfit_multi = function(
 
 #' Cross-fitting for a single method
 #'
-#' Convenience wrapper around \code{\link{crossfit_multi}} for the
-#' common case of a single method. It enforces that \code{method} is a
-#' single method specification and forwards the aggregation functions
-#' stored inside \code{method_1}.
+#' Runs one method specification and returns its estimate, per-repetition
+#' results, and diagnostics.
 #'
 #' @param data Data frame or matrix with the observations.
 #' @param method A single method specification (list) created by
@@ -596,14 +611,13 @@ crossfit_multi = function(
 #' @param fold_split A function producing a K-fold split of the data
 #'   (see \code{\link{crossfit_multi}}).
 #' @param seed Integer base random seed.
-#' @param max_fail Non-negative integer or \code{Inf} controlling how
-#'   many repetitions the method may fail before being disabled.
 #' @param verbose Logical; if \code{TRUE}, prints a compact status line
 #'   per repetition.
 #'
-#' @return The same structure as \code{\link{crossfit_multi}}, but with
-#'   a single method named \code{"method"}. The final estimate is in
-#'   \code{$estimates$method}.
+#' @return A list with components \code{estimate}, \code{results} (a list
+#'   containing per-repetition \code{values} and \code{errors}),
+#'   \code{repeats_done}, \code{K}, \code{K_required}, \code{method}, and
+#'   \code{plan}.
 #'
 #' @export
 #' @examples
@@ -638,10 +652,10 @@ crossfit_multi = function(
 #' )
 #'
 #' cf <- crossfit(data, method)
-#' cf$estimates
+#' cf$estimate
 crossfit = function(data, method,
                     fold_split = function(data, K) sample(rep_len(1:K, nrow(data))),
-                    seed = NULL, max_fail = Inf, verbose = FALSE) {
+                    seed = NULL, verbose = FALSE) {
 
   # Reject lists of methods: ask user to call crossfit_multi() directly.
   if (!is.list(method) || is.null(method$target) || !is.function(method$target)) {
@@ -662,14 +676,23 @@ crossfit = function(data, method,
   if (is.null(ar) || !is.function(ar))
     stop("'method$aggregate_repeats' must be a function for crossfit(); see identity/median_estimate/median_predictor for examples.")
 
-  crossfit_multi(
+  out = crossfit_multi(
     data    = data,
     methods = list(method),
     fold_split = fold_split,
     seed    = seed,
     aggregate_panels  = ap,
     aggregate_repeats = ar,
-    max_fail = max_fail,
     verbose  = verbose
+  )
+
+  list(
+    estimate      = out$estimates[[1L]],
+    results       = out$per_method[[1L]],
+    repeats_done  = unname(out$repeats_done[[1L]]),
+    K             = out$K,
+    K_required    = unname(out$K_required[[1L]]),
+    method        = out$methods[[1L]],
+    plan          = out$plan
   )
 }

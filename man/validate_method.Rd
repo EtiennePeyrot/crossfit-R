@@ -20,7 +20,7 @@ Validates a method specification and normalizes its nuisance graph.
 This includes:
 \itemize{
 \item checking \code{mode}, \code{eval_fold}, \code{folds},
-and \code{repeats},
+\code{repeats}, and failure controls,
 \item validating the nuisance container,
 \item checking that the target is a function and that its required
 arguments are nuisances,

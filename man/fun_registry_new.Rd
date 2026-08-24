@@ -7,13 +7,13 @@
 fun_registry_new()
 }
 \value{
-An environment with a character vector component \code{sigs}
+An environment with a list component \code{functions}
 used by \code{\link{fun_registry_id}}.
 }
 \description{
 Constructs a small environment used to deduplicate identical
-\code{fit()} / \code{predict()} functions across methods. Functions
-are represented by string signatures (via \code{\link{fun_code_sig}})
-stored in \code{$sigs}.
+\code{fit()} / \code{predict()} functions across methods. The function
+objects themselves are retained so that formal defaults and captured
+environments are part of the identity check.
 }
 \keyword{internal}

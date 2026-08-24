@@ -24,5 +24,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Etienne Peyrot \email{etienne.peyrot@inserm.fr} (\href{https://orcid.org/0009-0006-8520-6201}{ORCID})
 
+Authors:
+\itemize{
+  \item Etienne Peyrot \email{etienne.peyrot@inserm.fr} (\href{https://orcid.org/0009-0006-8520-6201}{ORCID})
+}
+
 }
 \keyword{package}

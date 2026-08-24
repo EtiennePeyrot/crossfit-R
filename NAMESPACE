@@ -3,6 +3,7 @@
 export(create_method)
 export(create_nuisance)
 export(crossfit)
+export(crossfit_failure_control)
 export(crossfit_multi)
 export(mean_estimate)
 export(mean_predictor)

@@ -13,7 +13,8 @@ create_method(
   eval_fold = if (mode == "estimate") 1L else 0L,
   fold_allocation = c("independence", "overlap", "disjoint"),
   aggregate_panels = NULL,
-  aggregate_repeats = NULL
+  aggregate_repeats = NULL,
+  failure_control = crossfit_failure_control()
 )
 }
 \arguments{
@@ -56,6 +57,10 @@ results, typically one of \code{\link{mean_estimate}},
 \code{\link{median_predictor}}, or a custom function. May be
 \code{NULL}, in which case a global default can be supplied via
 \code{\link{crossfit_multi}}.}
+
+\item{failure_control}{A named list created by
+\code{\link{crossfit_failure_control}}, or a partial named list of its
+fields. Missing fields use their documented defaults.}
 }
 \value{
 A method specification list suitable for use in
@@ -70,7 +75,8 @@ bundles together:
 \item a named list of nuisance specifications,
 \item cross-fitting geometry (\code{folds}, \code{repeats},
 \code{eval_fold}, \code{mode}, \code{fold_allocation}),
-\item and panel / repetition aggregation functions.
+\item panel / repetition aggregation functions,
+\item and method-specific failure handling.
 }
 }
 \details{
@@ -110,7 +116,10 @@ m <- create_method(
   mode = "estimate",
   fold_allocation = "independence",
   aggregate_panels  = mean_estimate,
-  aggregate_repeats = mean_estimate
+  aggregate_repeats = mean_estimate,
+  failure_control = crossfit_failure_control(
+    fail_repetition_on_error = FALSE
+  )
 )
 
 str(m)

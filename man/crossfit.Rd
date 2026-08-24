@@ -9,7 +9,6 @@ crossfit(
   method,
   fold_split = function(data, K) sample(rep_len(1:K, nrow(data))),
   seed = NULL,
-  max_fail = Inf,
   verbose = FALSE
 )
 }
@@ -26,22 +25,18 @@ must be functions.}
 
 \item{seed}{Integer base random seed.}
 
-\item{max_fail}{Non-negative integer or \code{Inf} controlling how
-many repetitions the method may fail before being disabled.}
-
 \item{verbose}{Logical; if \code{TRUE}, prints a compact status line
 per repetition.}
 }
 \value{
-The same structure as \code{\link{crossfit_multi}}, but with
-a single method named \code{"method"}. The final estimate is in
-\code{$estimates$method}.
+A list with components \code{estimate}, \code{results} (a list
+containing per-repetition \code{values} and \code{errors}),
+\code{repeats_done}, \code{K}, \code{K_required}, \code{method}, and
+\code{plan}.
 }
 \description{
-Convenience wrapper around \code{\link{crossfit_multi}} for the
-common case of a single method. It enforces that \code{method} is a
-single method specification and forwards the aggregation functions
-stored inside \code{method_1}.
+Runs one method specification and returns its estimate, per-repetition
+results, and diagnostics.
 }
 \examples{
 set.seed(1)
@@ -75,5 +70,5 @@ method <- create_method(
 )
 
 cf <- crossfit(data, method)
-cf$estimates
+cf$estimate
 }

@@ -11,7 +11,6 @@ crossfit_multi(
   seed = NULL,
   aggregate_panels = identity,
   aggregate_repeats = identity,
-  max_fail = Inf,
   verbose = FALSE
 )
 }
@@ -40,11 +39,6 @@ aggregator over repetitions for each method. It is applied to the
 list of per-repetition aggregated values. Methods can override this
 via their own \code{aggregate_repeats}.}
 
-\item{max_fail}{Non-negative integer or \code{Inf} controlling how
-many repetitions a method is allowed to fail before being disabled.
-Structural model failures and panel-level errors both count toward
-this limit.}
-
 \item{verbose}{Logical; if \code{TRUE}, prints a compact status line
 per repetition.}
 }
@@ -55,7 +49,8 @@ A list with components:
 (after aggregating over panels and repetitions).}
 \item{\code{per_method}}{For each method, a list with
 \code{values} (per-repetition aggregated results) and
-\code{errors} (error traces).}
+\code{errors} (panel and aggregation error traces, including
+errors tolerated by a method's panel aggregator).}
 \item{\code{repeats_done}}{Number of repetitions successfully
 completed for each method.}
 \item{\code{K}}{Number of folds used in the plan.}
