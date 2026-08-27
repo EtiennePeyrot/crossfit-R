@@ -154,9 +154,10 @@ model_cache_set = function(cache_env, key, value) {
 #' passed as additional arguments into the instance's \code{fit()}
 #' function.
 #'
-#' Structural failures are recorded in \code{plan$fail_env} so that
-#' methods relying on the same structural model can be skipped for the
-#' current repetition.
+#' Structural failures are recorded in \code{plan$fail_env}. During the
+#' current repetition, methods with
+#' \code{prune_on_shared_fit_failure = TRUE} can then skip repeated
+#' attempts to fit the same structural model.
 #'
 #' @param inst_key Instance key in \code{plan$instances}.
 #' @param token An evaluation or training token (see
@@ -323,8 +324,8 @@ predict_instance_for_token = function(inst_key, token, data, methods, plan, fit_
 #' @param seed Integer base random seed used for the K-fold splits; each
 #'   repetition uses \code{seed + rep_id - 1}.
 #' @param aggregate_panels Function used as the \emph{default} aggregator
-#'   over panels (folds) for each method. It is applied to the list of
-#'   per-panel values. Methods can override this via their own
+#'   over panels for each method. It is applied to the list of per-panel
+#'   values. Methods can override this via their own
 #'   \code{aggregate_panels}.
 #' @param aggregate_repeats Function used as the \emph{default}
 #'   aggregator over repetitions for each method. It is applied to the

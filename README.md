@@ -12,7 +12,8 @@ The package lets you define:
 - a **target** functional (e.g. ATE, risk, regression error),
 - a **graph of nuisance models** (propensity scores, regressions, etc.),
 - how many **folds** each node trains on (`train_fold`),
-- how many **folds** the target evaluates on (`eval_fold`),
+- the width, in **folds**, of the target’s evaluation window
+  (`eval_fold`),
 
 and then runs a cross-fitting schedule with configurable aggregation
 over **panels** and **repetitions**.
@@ -61,8 +62,7 @@ The engine:
 - lets each node choose its own `train_fold` (how many folds it trains
   on),
 
-- lets the target choose its `eval_fold` (how many folds it evaluates
-  on),
+- lets the target choose its evaluation-window width (`eval_fold`),
 
 - supports several fold allocation schemes: `"independence"`,
   `"overlap"`, `"disjoint"`,
@@ -104,7 +104,7 @@ target_mse <- function(data, nuis_y, ...) {
   mean((data$y - nuis_y)^2)
 }
 
-# 3) Method: use 4 folds, 3 repetitions, DML-style "independence" allocation
+# 3) Method: use 4 folds, 3 repetitions, and "independence" allocation
 method <- create_method(
   target = target_mse,
   list_nuisance = list(nuis_y = nuis_y),
@@ -143,8 +143,8 @@ The `crossfit()` call:
 
 ## Multiple methods and shared nuisances
 
-You can run several methods in parallel, sharing some or all nuisances.
-For example, we can estimate both:
+You can run several methods in the same call, sharing some or all
+nuisances. For example, we can estimate both:
 
 - the cross-fitted MSE of $m(x)$,
 - the cross-fitted **mean** of $m(x)$,
@@ -243,18 +243,15 @@ method_ens <- create_method(
   repeats       = 3,
   eval_fold     = 0, # no eval window in predict mode
   mode          = "predict",
-  fold_allocation = "independence"
-)
-
-res <- crossfit_multi(
-  data    = data,
-  methods = list(ensemble = method_ens),
+  fold_allocation = "independence",
   aggregate_panels  = mean_predictor,
   aggregate_repeats = mean_predictor
 )
 
+res <- crossfit(data, method_ens)
+
 # Cross-fitted ensemble predictor on new data
-f_hat <- res$estimates$ensemble
+f_hat <- res$estimate
 newdata <- data.frame(x = seq(-2, 2, length.out = 5))
 cbind(x = newdata$x, y_hat = f_hat(newdata))
 ```
@@ -268,11 +265,11 @@ Here:
 
 ## Key functions
 
-- `create_nuisance()`  
+- `create_nuisance()`\
   Define a nuisance node via `fit` / `predict`, `train_fold`, and
   optional dependency mappings (`fit_deps`, `pred_deps`).
 
-- `create_method()`  
+- `create_method()`\
   Define a method:
 
   - `target` function,
@@ -284,16 +281,17 @@ Here:
   - optional `aggregate_panels`, `aggregate_repeats`, and
     `failure_control`.
 
-- `crossfit_failure_control()`
-  Configure whether panel errors fail a repetition, whether failed shared
-  fits may prune later methods, and how many failed repetitions are allowed.
+- `crossfit_failure_control()`\
+  Configure whether panel errors fail a repetition, whether failed
+  shared fits may prune later methods, and how many failed repetitions
+  are allowed.
 
-- `crossfit()`  
+- `crossfit()`\
   Run cross-fitting for a **single** method.
 
-- `crossfit_multi()`  
-  Run cross-fitting for **several** methods in parallel, with shared
-  nuisances and shared K-fold splits.
+- `crossfit_multi()`\
+  Run cross-fitting for **several** methods in the same call, with
+  shared nuisances and shared K-fold splits.
 
 - Aggregators:
 

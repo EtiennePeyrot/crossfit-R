@@ -54,8 +54,9 @@ Child nuisances are recursively predicted on the training window and
 passed as additional arguments into the instance's \code{fit()}
 function.
 
-Structural failures are recorded in \code{plan$fail_env} so that
-methods relying on the same structural model can be skipped for the
-current repetition.
+Structural failures are recorded in \code{plan$fail_env}. During the
+current repetition, methods with
+\code{prune_on_shared_fit_failure = TRUE} can then skip repeated
+attempts to fit the same structural model.
 }
 \keyword{internal}

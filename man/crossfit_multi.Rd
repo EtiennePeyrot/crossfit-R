@@ -30,8 +30,8 @@ each fold.}
 repetition uses \code{seed + rep_id - 1}.}
 
 \item{aggregate_panels}{Function used as the \emph{default} aggregator
-over panels (folds) for each method. It is applied to the list of
-per-panel values. Methods can override this via their own
+over panels for each method. It is applied to the list of per-panel
+values. Methods can override this via their own
 \code{aggregate_panels}.}
 
 \item{aggregate_repeats}{Function used as the \emph{default}

@@ -192,21 +192,18 @@ test_that("predict mode returns a predictor function", {
     repeats = 2,
     eval_fold = 0L,
     mode = "predict",
-    fold_allocation = "independence"
-  )
-
-  res_pred <- crossfit_multi(
-    data    = dat,
-    methods = list(pred = m_pred),
+    fold_allocation = "independence",
     aggregate_panels  = mean_predictor,
     aggregate_repeats = mean_predictor
   )
 
-  # In predict mode, estimates$pred should be a prediction function
-  expect_true(is.function(res_pred$estimates$pred))
+  res_pred <- crossfit(dat, m_pred)
+
+  # In predict mode, estimate should be a prediction function
+  expect_true(is.function(res_pred$estimate))
 
   newdata <- data.frame(x = seq(-1, 1, length.out = 5))
-  vals <- res_pred$estimates$pred(newdata)
+  vals <- res_pred$estimate(newdata)
   expect_type(vals, "double")
   expect_length(vals, nrow(newdata))
 })

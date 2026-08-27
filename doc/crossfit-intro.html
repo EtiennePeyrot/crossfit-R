@@ -341,7 +341,6 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<p>library(crossfit) set.seed(1)</p>
 <div id="motivation-why-another-cross-fitting-engine" class="section level1">
 <h1>1. Motivation: why another cross-fitting engine?</h1>
 <p>Many modern estimators (<strong>double / debiased ML</strong>,
@@ -371,7 +370,7 @@ nuisances were <em>not</em> trained.</li>
 <p>The <code>crossfit</code> package generalizes this logic to:</p>
 <ul>
 <li>an arbitrary <strong>DAG of nuisances</strong>,</li>
-<li>multiple methods in parallel,</li>
+<li>multiple methods in the same run,</li>
 <li>flexible fold geometry (per-node <code>train_fold</code>, per-target
 <code>eval_fold</code>),</li>
 <li>two modes: <code>&quot;estimate&quot;</code> (numeric target) and
@@ -447,8 +446,8 @@ folds,</li>
 <ul>
 <li><code>folds</code> and <code>repeats</code> define <strong>K-fold
 cross-fitting repeated R times</strong>,</li>
-<li><code>eval_fold</code> tells how many folds to reserve for
-evaluating the target,</li>
+<li><code>eval_fold</code> specifies the width, in folds, of the
+target’s evaluation window,</li>
 <li><code>mode</code> controls whether we return a <strong>numeric
 estimate</strong> (<code>&quot;estimate&quot;</code>) or a <strong>prediction
 function</strong> (<code>&quot;predict&quot;</code>),</li>
@@ -474,20 +473,20 @@ results.</li>
 <h2>3.1 Single-method cross-fitting with <code>crossfit()</code></h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">crossfit</span>(data, mse_method)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">str</span>(res<span class="sc">$</span>estimates)</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>res<span class="sc">$</span>estimates[[<span class="dv">1</span>]]</span></code></pre></div>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">str</span>(res<span class="sc">$</span>estimate)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>res<span class="sc">$</span>estimate</span></code></pre></div>
 <p>The result is a list with elements:</p>
 <ul>
-<li><code>estimates</code> – one entry per method (here only one),</li>
-<li><code>per_method</code> – panel-wise and repetition-wise values and
-errors,</li>
+<li><code>estimate</code> – the final estimate (or prediction
+function),</li>
+<li><code>results</code> – repetition-wise values and error traces,</li>
 <li><code>repeats_done</code> – how many repetitions successfully
 ran,</li>
-<li><code>K</code>, <code>K_required</code>, <code>methods</code>,
+<li><code>K</code>, <code>K_required</code>, <code>method</code>,
 <code>plan</code> – extra diagnostics.</li>
 </ul>
 <p>We can inspect the per-repetition values:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>res<span class="sc">$</span>per_method<span class="sc">$</span>method<span class="sc">$</span>values</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>res<span class="sc">$</span>results<span class="sc">$</span>values</span></code></pre></div>
 <p>Each element in <code>values</code> is the aggregated MSE over panels
 for that repetition.</p>
 </div>
@@ -603,23 +602,20 @@ the two nuisance predictions into an ensemble prediction:</p>
 <span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>  <span class="at">repeats       =</span> <span class="dv">3</span>,</span>
 <span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  <span class="at">eval_fold     =</span> <span class="dv">0</span>, <span class="co"># no eval window in predict mode</span></span>
 <span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>  <span class="at">mode          =</span> <span class="st">&quot;predict&quot;</span>,</span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  <span class="at">fold_allocation   =</span> <span class="st">&quot;independence&quot;</span></span>
-<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>)</span></code></pre></div>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  <span class="at">fold_allocation   =</span> <span class="st">&quot;independence&quot;</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>  <span class="at">aggregate_panels  =</span> mean_predictor,</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>  <span class="at">aggregate_repeats =</span> mean_predictor</span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>)</span></code></pre></div>
 <p>Run cross-fitting in predict mode, using
 <code>mean_predictor()</code> to aggregate panel-level and
 repetition-level predictors:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>res_pred <span class="ot">&lt;-</span> <span class="fu">crossfit_multi</span>(</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="at">data =</span> data2,</span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">methods =</span> <span class="fu">list</span>(<span class="at">ensemble =</span> m_ens),</span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="at">aggregate_panels =</span> mean_predictor,</span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="at">aggregate_repeats =</span> mean_predictor</span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>)</span>
-<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="co"># estimates$ensemble is now a prediction function</span></span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a>f_hat <span class="ot">&lt;-</span> res_pred<span class="sc">$</span>estimates<span class="sc">$</span>ensemble</span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a></span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="at">length.out =</span> <span class="dv">7</span>))</span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">x =</span> newdata<span class="sc">$</span>x, <span class="at">y_hat =</span> <span class="fu">f_hat</span>(newdata))</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>res_pred <span class="ot">&lt;-</span> <span class="fu">crossfit</span>(data2, m_ens)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="co"># estimate is now a prediction function</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>f_hat <span class="ot">&lt;-</span> res_pred<span class="sc">$</span>estimate</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>newdata <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="at">length.out =</span> <span class="dv">7</span>))</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="fu">cbind</span>(<span class="at">x =</span> newdata<span class="sc">$</span>x, <span class="at">y_hat =</span> <span class="fu">f_hat</span>(newdata))</span></code></pre></div>
 <p>Here:</p>
 <ul>
 <li>Each repetition builds cross-fitted predictors for
@@ -641,8 +637,8 @@ and the engine returns a cross-fitted version of that predictor.</p>
 blocks are placed relative to the evaluation window.</p>
 <p>For each method:</p>
 <ul>
-<li><code>eval_fold</code> folds are reserved for evaluating the
-target,</li>
+<li>the target’s evaluation window contains <code>eval_fold</code>
+folds,</li>
 <li>each nuisance has a <code>train_fold</code> width,</li>
 <li><code>fold_allocation</code> decides how the training blocks for
 nuisances occupy the K folds.</li>
@@ -717,7 +713,7 @@ after the eval window, without duplicating instances by context.<br />
 <span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>  <span class="at">fold_split =</span> fold_split_grouped</span>
 <span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>)</span>
 <span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a></span>
-<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a>res_grouped<span class="sc">$</span>estimates[[<span class="dv">1</span>]]</span></code></pre></div>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a>res_grouped<span class="sc">$</span>estimate</span></code></pre></div>
 <p>The only requirement is that <code>fold_split(data, K)</code> returns
 a vector of length <code>nrow(data)</code> with integer labels in
 <code>{1, …, K}</code>, and that all folds are non-empty.</p>
@@ -749,7 +745,36 @@ summaries,</li>
 <span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a>)</span>
 <span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a></span>
 <span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a>res_trim <span class="ot">&lt;-</span> <span class="fu">crossfit</span>(data, m_trim)</span>
-<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a>res_trim<span class="sc">$</span>estimates[[<span class="dv">1</span>]]</span></code></pre></div>
+<span id="cb16-19"><a href="#cb16-19" tabindex="-1"></a>res_trim<span class="sc">$</span>estimate</span></code></pre></div>
+</div>
+<div id="failure-handling" class="section level2">
+<h2>7.3 Failure handling</h2>
+<p>Failure handling is configured for each method:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>default_failure_control <span class="ot">&lt;-</span> <span class="fu">crossfit_failure_control</span>()</span></code></pre></div>
+<p>By default, the first panel error fails the current repetition. To
+attempt all panels and pass failed panel results as
+<code>NA_real_</code> to the panel aggregator, set
+<code>fail_repetition_on_error = FALSE</code>:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>available_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(xs) <span class="fu">mean</span>(<span class="fu">unlist</span>(xs), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>m_available <span class="ot">&lt;-</span> <span class="fu">create_method</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>  <span class="at">target        =</span> target_mse,</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>  <span class="at">list_nuisance =</span> <span class="fu">list</span>(<span class="at">nuis_y =</span> nuis_y),</span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>  <span class="at">folds         =</span> <span class="dv">4</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>  <span class="at">repeats       =</span> <span class="dv">5</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>  <span class="at">eval_fold     =</span> <span class="dv">1</span><span class="dt">L</span>,</span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>  <span class="at">mode          =</span> <span class="st">&quot;estimate&quot;</span>,</span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>  <span class="at">fold_allocation   =</span> <span class="st">&quot;independence&quot;</span>,</span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a>  <span class="at">aggregate_panels  =</span> available_mean,</span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>  <span class="at">aggregate_repeats =</span> available_mean,</span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a>  <span class="at">failure_control =</span> <span class="fu">crossfit_failure_control</span>(</span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a>    <span class="at">fail_repetition_on_error =</span> <span class="cn">FALSE</span></span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a>  )</span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a>)</span></code></pre></div>
+<p>Set <code>prune_on_shared_fit_failure = TRUE</code> to skip a method
+when a structurally identical nuisance fit has already failed in the
+same repetition. <code>max_failed_repetitions</code> sets how many
+failed repetitions are allowed before the method is disabled.</p>
 </div>
 </div>
 <div id="where-to-go-next" class="section level1">
@@ -758,8 +783,8 @@ summaries,</li>
 <li><p>Use <code>?crossfit</code>, <code>?crossfit_multi</code>,
 <code>?create_method</code>, <code>?create_nuisance</code> for detailed
 argument reference.</p></li>
-<li><p>Explore the <code>per_method</code> and <code>plan</code>
-components in the result if you need to:</p>
+<li><p>Explore <code>results</code> (or <code>per_method</code> from
+<code>crossfit_multi()</code>) and <code>plan</code> if you need to:</p>
 <ul>
 <li>debug dependency graphs,</li>
 <li>inspect allocated folds,</li>

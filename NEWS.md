@@ -1,15 +1,10 @@
-# crossfit 0.1.3
+# crossfit 0.1.4
 
-* `crossfit()` now returns a direct single-method result with `estimate` and
-  `results` components instead of nesting outputs under an automatic method
-  name. Method names remain part of `crossfit_multi()` output.
-* Added `crossfit_failure_control()` and the method-level `failure_control`
-  setting. Panel errors can optionally be passed to a missingness-aware panel
-  aggregator, while failed-fit pruning is now opt-in and defaults to `FALSE`.
-* Replaced the top-level `max_fail` argument with the method-specific
-  `failure_control$max_failed_repetitions` setting.
-* Function reuse now compares complete function objects, including closure
-  environments, so learners with different captured state are not conflated.
+* Simplified the single-method interface: `crossfit()` now returns `estimate`, `results`, and diagnostics directly. Method-indexed outputs remain available through `crossfit_multi()`.
+* Added method-specific failure handling through `crossfit_failure_control()`, including control over whether panel errors fail a repetition, pruning after shared-fit failures, and the number of permitted failed repetitions.
+* Improved nuisance-fit reuse by comparing complete function objects, including their closure environments, so learners with different captured states are not incorrectly treated as identical.
+* Updated the documentation and examples to use the current output structure and clarified the terminology for evaluation windows, panels, and repetitions.
+
 
 # crossfit 0.1.2
 
